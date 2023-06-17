@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Vina+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Vina+Sans&display=swap');
+
+* {
+    /* font-family: 'Vina Sans', cursive; */
+    font-family: 'IBM Plex Mono', monospace;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: white;
+    background: inherit;
+
+}
+
+
+.slider {
+    display: grid;
+    grid-template-columns: 1fr 17.5ch;
+    font-size: 1.5em;
+    font-weight: 500;
+    color: crimson;
+}
+
+.slider input {
+    position: relative;
+}
+
+.slider input::after {
+    content: attr(value); 
+    position: absolute;
+    left: calc(100% + 2ex);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25em;
+    font-weight: 300;
+    white-space: nowrap;
+}
+
+.slider #speed::after {
+    content: attr(value) ' px/frame'; 
+}
+
+.slider #range::after {
+    content: attr(value) " px"; 
+}
+
+.slider label {
+    text-align: end;
+    font-weight: 600;
+    color: crimson;
+    text-transform: uppercase;
+}
+
+body {
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    grid-template-rows: 1fr;
+    gap: 0 1vmax;
+    padding: 1vmax;
+    height: 100vh;
+    background: hsl(0, 0%, 8%);
+    justify-content: stretch;
+}
+
+.render {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.preview {
+    width: max-content;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+    align-items: stretch;
+    justify-content: space-between;
+    font-size: 1.5em;
+    text-transform: uppercase;
+}
+
+.preview input, button {
+    font-size: 1em;
+}
+
+.preview canvas {
+    height: 50vh;
+    aspect-ratio: 1;
+    border-radius: 1ex;
+}
+
+.select {
+    margin-top: 5px;
+    display: flex;
+    gap: 2ex;
+    justify-content: center;
+    align-self: stretch;
+}
+
+.select > * {
+    flex-grow: 1;
+    text-align: center;
+    padding: 0.075lh;
+    background: 1px hsl(0, 0%, 96%);
+    background: 1px hsl(0, 0%, 24%);
+    outline: 1px solid hsla(0, 0%, 0%, 0.1);
+    outline: 1px solid hsla(0, 0%, 100%, 0.1);
+    border-radius: 0.1lh;
+}
+
+.select > *:hover {
+    outline: 1px dashed hsla(0, 0%, 0%, 0.25);
+    background-color: hsl(348, 83%, 80%);
+    background-color: hsl(348, 83%, 30%);
+}
+
+canvas {
+    outline: 2px solid rgba(0, 0, 0, 0.25);
+    outline: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 0 1ex rgba(0, 0, 0, 0.25);
+    box-shadow: inset 0 0 1ex rgba(0, 0, 0, 1);
+}
+
+#medium {
+    height: 75vh;
+    aspect-ratio: 16 / 9;
+    border-radius: 1ex;
+}
+
+input[type="color"] {
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    height: 5ex;
+    /* width: 5ex; */
+    width: 100%;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    width: 100%;
+    border-radius: 0.5ex;
+}
+
+input[type="range"] {
+    /* appearance: none; */
+    /* background: blue; */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    /* appearance: none; */
+    /* -webkit-appearance: none; */
+    /* outline: 10px solid green; */
+    /* background: blue; */
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    /* background: transparent; */
+    /* background: red; */
+}
+
+input {
+    /* appearance: none; */
+}
+
