@@ -17,22 +17,33 @@ export default class Boid {
     constructor(
         private _location: Point,
         private _direction: Vector,
+        private _color?: string,
         private _neighbors: Map<Boid, number> = new Map()) {
             Boid.BoidMap.set(this, new Vector())
+            Boid.canvas.updateMapLocation(this)
     }
+
     
     incrementPositon(): void {
         const normal = this._direction.normalized;
         const speed = Boid.params.get("speed") || 0
-        this._location.x += speed * normal.x;
-        if (this.location.x >= Boid.canvas.width + 100) this._location.x = -100
-        else if (this.location.x <=  -100) this._location.x = Boid.canvas.width + 100
-        this._location.y += speed * normal.y;
-        if (this.location.y >= Boid.canvas.height + 100) this._location.y = -100
-        else if (this.location.y <= -100) this._location.y = Boid.canvas.height + 100
+        const canvasWidth = Boid.canvas.width;
+        const canvasHeight = Boid.canvas.height;
+        // this._location.x += speed * normal.x;
+        // if (this.location.x >= Boid.canvas.width + 100) this._location.x = -100
+        // else if (this.location.x <=  -100) this._location.x = Boid.canvas.width + 100
+        // this._location.y += speed * normal.y;
+        // if (this.location.y >= Boid.canvas.height + 100) this._location.y = -100
+        // else if (this.location.y <= -100) this._location.y = Boid.canvas.height + 100
+        this._location.x = (this._location.x + speed * normal.x + 100) % (canvasWidth + 200) - 100;
+        this._location.y = (this._location.y + speed * normal.y + 100) % (canvasHeight + 200) - 100;
+
+        if (Point.within(this._location, canvasWidth, canvasHeight)) {
+            Boid.canvas.updateMapLocation(this)
+        }
     }
 
-    findNeighbors() {
+    findNeighbors(): void {
         const found: Map<Boid, number> = new Map()
         Boid.BoidMap.forEach((v, k) => {
             let dist = Point.distance(k._location, this._location)
@@ -74,11 +85,15 @@ export default class Boid {
         return new Vector(destination, this._location)
     }
 
-    get location() {
+    followCursor(cursorLocation: Point): Vector {
+        return new Vector(cursorLocation, this._location)
+    }
+
+    get location(): Point {
         return this._location
     }
 
-    get direction() {
+    get direction(): Vector {
         return this._direction
     }
 

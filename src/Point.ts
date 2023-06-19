@@ -26,4 +26,8 @@ export default class Point {
     static distance(p1: Point, p2: Point): number {
         return (new Vector(p1, p2)).magnitude
     }
+
+    static within(p: Point, maxX: number, maxY: number, minX = 0, minY = 0): boolean {
+        return minX <= p.x  && p.x <= maxX &&  minY <= p.y  && p.y <= maxY;
+    }
 }

@@ -6,6 +6,24 @@ import Canvas from "./Canvas.js"
 const range: (HTMLInputElement | null )[] = [...document.querySelectorAll("input")]
 const medium = document.getElementById("medium") as HTMLCanvasElement
 let context: CanvasRenderingContext2D | null;
+const cursorPos = {location: new Point(-1, -1), valid(): boolean {
+    return this.location.x >= 0 && this.location.y >= 0
+} }
+
+
+document.addEventListener("mousemove", (e) => {
+    const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
+    if (Point.within(mouseLocation, medium.width, medium.height)) {
+        cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
+        cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
+        const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
+        console.log(locationVal)
+        if (locationVal) console.log(locationVal)
+    } else {
+        cursorPos.location.x = -1
+        cursorPos.location.y = -1
+    }
+})
 
 range.forEach(v => {
     if (v) inputListener(v, v.id)
@@ -23,8 +41,6 @@ function inputListener(element: HTMLInputElement, ObjKey: string): void {
 function start(count: number) {
     if (medium) {
         Boid.BoidMap.clear()
-        medium.width = 4 * window.innerWidth
-        medium.height = 4 * window.innerHeight
         Boid.canvas = new Canvas(medium.width, medium.height)
     }
 
@@ -55,6 +71,10 @@ function draw() {
         let v0 = key.alignWithNeigbors().normalized
         let v1 = key.avoidNeighbors().normalized
         let v2 = key.flockWithNeigbor().normalized
+        let v3;
+        if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < (Boid.params.get("range") || Number.MAX_SAFE_INTEGER)) {
+            v3 = key.followCursor(cursorPos.location).normalized
+        }
         let og = key.direction.normalized
 
 
@@ -62,8 +82,8 @@ function draw() {
         let av = Boid.params.get("avoid") || 0
         let f = Boid.params.get("flock") || 0
         let dest = new Point(
-            og.x + al * s * v0.x + av * s * v1.x + f * s * v2.x,
-            og.y + al * s * v0.y + av * s * v1.y + f * s * v2.y
+            og.x + al * s * v0.x + av * s * v1.x + f * s * v2.x + s * (v3?.x || 0),
+            og.y + al * s * v0.y + av * s * v1.y + f * s * v2.y + s * (v3?.y || 0)
         )
 
         t.set(key, new Vector(dest))
@@ -97,7 +117,6 @@ function drawBoid(context: CanvasRenderingContext2D, boid: Boid, fullLength: num
         }
         context.closePath();
         context.fillStyle = (document.getElementById("color") as HTMLInputElement)?.value
-        context.lineWidth = Math.min(tailReach, fullLength) / 10 
         context.fill();
         context.stroke();
         context.restore();
@@ -114,15 +133,17 @@ const data = {
     reach: document.getElementById("reach") as HTMLInputElement
 }
 let selectedMode = "0";
-let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)))
-Boid.BoidMap.delete(previewBoid)
+// let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)))
+// Boid.BoidMap.delete(previewBoid)
+let curr: Element;
 for (const option of options) {
-    option.addEventListener("mouseenter", () => {
+    option.addEventListener("click", () => {
+        curr?.classList.toggle("clicked")
+        curr = option
+        curr?.classList.toggle("clicked")
         selectedMode = option?.getAttribute("mode") || "0"
-        window.requestAnimationFrame(drawPreview)
-        // option.classList.toggle("curr")
+        // window.requestAnimationFrame(drawPreview)
     })
-    // option.addEventListener("mouseleave", () => option.classList.toggle("curr"))
 }
 document.querySelectorAll(".preview input").forEach(e => {
     e.addEventListener("input", () => {
@@ -136,5 +157,5 @@ document.getElementById("submit")?.addEventListener("click", () => {
 
 function drawPreview() {
     contextP?.clearRect(0 , 0, previewCanvas.width, previewCanvas.height)
-    if (contextP) drawBoid(contextP, previewBoid, 20 * +data.length?.value, 20 * +data.reach?.value)
+    // if (contextP) drawBoid(contextP, previewBoid, 15 * +data.length?.value, 15 * +data.reach?.value)
 }

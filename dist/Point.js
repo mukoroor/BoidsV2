@@ -19,4 +19,7 @@ export default class Point {
     static distance(p1, p2) {
         return (new Vector(p1, p2)).magnitude;
     }
+    static within(p, maxX, maxY, minX = 0, minY = 0) {
+        return minX <= p.x && p.x <= maxX && minY <= p.y && p.y <= maxY;
+    }
 }

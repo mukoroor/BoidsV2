@@ -12,23 +12,23 @@
     <div class="preview">
         <canvas height="4096" width="4096"></canvas>
         <div class="select">
-            <div id="arrow" mode="0">Triangle</div>
-            <div id="triangle" mode="1">Arrow</div>
-            <div id="circle" mode="2">Circle</div>
-            <div id="circle" mode="3">Square</div>
+            <button id="arrow" mode="0">Triangle</button>
+            <button id="triangle" mode="1">Arrow</button>
+            <button id="circle" mode="2">Circle</button>
+            <button id="circle" mode="3">Square</button>
         </div>
         <label for="color">color</label>
         <input id="color" type="color">
         <label for="length">length</label>
-        <input id="length" type="number" min="5" max="150" value="50">
+        <input id="length" type="number" min="5" max="200" value="100">
         <label for="reach">reach</label>
-        <input id="reach" type="number" min="5" max="150" value="10">
+        <input id="reach" type="number" min="5" max="200" value="50">
         <label for="count">count</label>
-        <input id="count" type="number" min="5" max="600" value="100">
+        <input id="count" type="number" min="5" max="600" value="200">
         <button id="submit">submit</button>
     </div>
     <div class="render">
-        <canvas id="medium" height="1080" width="1920"></canvas>
+        <canvas id="medium" height="4320" width="7680"></canvas>
         <div class="sliders">
             <div class="slider">
                 <input id="range" type="range" max="1024" min="28" value="256">
