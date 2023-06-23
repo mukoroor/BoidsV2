@@ -1,18 +1,21 @@
 import Vector from "./Vector.js"
 import Point from "./Point.js";
 import Canvas from "./Canvas.js";
+import Slider from "./Slider.js";
 
 export default class Boid {
     
+
     static canvas: Canvas;
     static BoidMap: Map<Boid, Vector> = new Map();
-    static params = new Map([
-        ["range", 256],
-        ["speed", 1],
-        ["avoid", 1],
-        ["align", 1],
-        ["flock", 1],
-        ["sharpness", 1]])
+    static params: {[key: string]: Slider} = {
+        speed: new Slider(0 , 20),
+        range: new Slider(0, 1024),
+        sharpness: new Slider(0, 2),
+        align: new Slider(0, 5),
+        avoid: new Slider(0, 5),
+        flock: new Slider(0, 5)
+    }
 
     constructor(
         private _location: Point,
@@ -20,26 +23,29 @@ export default class Boid {
         private _color?: string,
         private _neighbors: Map<Boid, number> = new Map()) {
             Boid.BoidMap.set(this, new Vector())
-            Boid.canvas.updateMapLocation(this)
+            Boid.canvas.setBoidLocation(this)
     }
 
     
     incrementPositon(): void {
         const normal = this._direction.normalized;
-        const speed = Boid.params.get("speed") || 0
+        const speed = Boid.params.speed.value;
         const canvasWidth = Boid.canvas.width;
         const canvasHeight = Boid.canvas.height;
         // this._location.x += speed * normal.x;
-        // if (this.location.x >= Boid.canvas.width + 100) this._location.x = -100
-        // else if (this.location.x <=  -100) this._location.x = Boid.canvas.width + 100
+        // if (this.location.x >= Boid.canvas.width + 100) this._location.x = -100;
+        // else if (this.location.x <=  -100) this._location.x = Boid.canvas.width + 100;
         // this._location.y += speed * normal.y;
-        // if (this.location.y >= Boid.canvas.height + 100) this._location.y = -100
-        // else if (this.location.y <= -100) this._location.y = Boid.canvas.height + 100
+        // if (this.location.y >= Boid.canvas.height + 100) this._location.y = -100;
+        // else if (this.location.y <= -100) this._location.y = Boid.canvas.height + 100;
+        if (Point.within(this._location, canvasWidth, canvasHeight)) {
+            Boid.canvas.clearBoidLocation(this)
+        }
         this._location.x = (this._location.x + speed * normal.x + 100) % (canvasWidth + 200) - 100;
         this._location.y = (this._location.y + speed * normal.y + 100) % (canvasHeight + 200) - 100;
 
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
-            Boid.canvas.updateMapLocation(this)
+            Boid.canvas.setBoidLocation(this)
         }
     }
 
@@ -47,7 +53,7 @@ export default class Boid {
         const found: Map<Boid, number> = new Map()
         Boid.BoidMap.forEach((v, k) => {
             let dist = Point.distance(k._location, this._location)
-            if (k !== this && dist < (Boid.params.get("range") || 0)) {
+            if (k !== this && dist < Boid.params.range.value) {
                 found.set(k, dist)
             }
         })

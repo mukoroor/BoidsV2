@@ -1,42 +1,31 @@
-var _a;
+var _a, _b;
 import Boid from "./Boid.js";
 import Vector from "./Vector.js";
 import Point from "./Point.js";
 import Canvas from "./Canvas.js";
-const range = [...document.querySelectorAll("input")];
 const medium = document.getElementById("medium");
 let context;
 const cursorPos = { location: new Point(-1, -1), valid() {
         return this.location.x >= 0 && this.location.y >= 0;
     } };
-document.addEventListener("mousemove", (e) => {
+(_a = document.querySelector(".render")) === null || _a === void 0 ? void 0 : _a.append(...Object.keys(Boid.params).map(e => Boid.params[e].container));
+document.addEventListener("mousedown", (e) => {
     var _a;
+    // console.log(e)
+    // console.log(medium.offsetLeft, medium.offsetTop, medium.width, medium.clientHeight, medium.clientWidth)
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop);
     if (Point.within(mouseLocation, medium.width, medium.height)) {
         cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth;
         cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight;
         const locationVal = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)];
+        console.log(cursorPos.location);
         console.log(locationVal);
-        if (locationVal)
-            console.log(locationVal);
     }
     else {
         cursorPos.location.x = -1;
         cursorPos.location.y = -1;
     }
 });
-range.forEach(v => {
-    if (v)
-        inputListener(v, v.id);
-});
-function inputListener(element, ObjKey) {
-    if (Boid.params.get(ObjKey)) {
-        element.addEventListener("input", () => {
-            Boid.params.set(ObjKey, Number.parseFloat((element === null || element === void 0 ? void 0 : element.value) || "0"));
-            element === null || element === void 0 ? void 0 : element.setAttribute("value", `${Boid.params.get(ObjKey)}`);
-        });
-    }
-}
 function start(count) {
     if (medium) {
         Boid.BoidMap.clear();
@@ -62,19 +51,19 @@ function draw() {
             drawBoid(context, k, +((_a = data.length) === null || _a === void 0 ? void 0 : _a.value), +((_b = data.reach) === null || _b === void 0 ? void 0 : _b.value));
         k.findNeighbors();
     });
-    let s = Boid.params.get("sharpness") || 0;
+    let s = Boid.params.sharpness.value;
     Boid.BoidMap.forEach((val, key, t) => {
         let v0 = key.alignWithNeigbors().normalized;
         let v1 = key.avoidNeighbors().normalized;
         let v2 = key.flockWithNeigbor().normalized;
         let v3;
-        if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < (Boid.params.get("range") || Number.MAX_SAFE_INTEGER)) {
+        if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < Boid.params.range.value) {
             v3 = key.followCursor(cursorPos.location).normalized;
         }
         let og = key.direction.normalized;
-        let al = Boid.params.get("align") || 0;
-        let av = Boid.params.get("avoid") || 0;
-        let f = Boid.params.get("flock") || 0;
+        let al = Boid.params.align.value;
+        let av = Boid.params.avoid.value;
+        let f = Boid.params.flock.value;
         let dest = new Point(og.x + al * s * v0.x + av * s * v1.x + f * s * v2.x + s * ((v3 === null || v3 === void 0 ? void 0 : v3.x) || 0), og.y + al * s * v0.y + av * s * v1.y + f * s * v2.y + s * ((v3 === null || v3 === void 0 ? void 0 : v3.y) || 0));
         t.set(key, new Vector(dest));
     });
@@ -142,11 +131,12 @@ document.querySelectorAll(".preview input").forEach(e => {
         window.requestAnimationFrame(drawPreview);
     });
 });
-(_a = document.getElementById("submit")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
+(_b = document.getElementById("submit")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
     var _a;
     start(+((_a = document.getElementById("count")) === null || _a === void 0 ? void 0 : _a.value));
 });
 function drawPreview() {
+    console.log(previewCanvas.width);
     contextP === null || contextP === void 0 ? void 0 : contextP.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     // if (contextP) drawBoid(contextP, previewBoid, 15 * +data.length?.value, 15 * +data.reach?.value)
 }

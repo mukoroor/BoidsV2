@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="medium.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <script src="./dist/State.js" type="module"></script>
 </head>
 <body>
     <div class="preview">
-        <canvas height="4096" width="4096"></canvas>
+        <canvas id="pred" height="1080" width="1080"></canvas>
         <div class="select">
             <button id="arrow" mode="0">Triangle</button>
             <button id="triangle" mode="1">Arrow</button>
@@ -29,13 +30,13 @@
     </div>
     <div class="render">
         <canvas id="medium" height="4320" width="7680"></canvas>
-        <div class="sliders">
+        <!-- <div class="sliders">
             <div class="slider">
                 <input id="range" type="range" max="1024" min="28" value="256">
                 <label for="range">range</label>
             </div>
             <div class="slider">
-                <input id="speed" type="range" max="10"  min="1" value="1" step="0.5">
+                <input id="speed" type="range" max="400"  min="1" value="1" step="0.5">
                 <label for="speed">speed</label>
             </div>
             <div class="slider">
@@ -54,7 +55,7 @@
                 <input id="sharpness" type="range" max="2" min="0" value="1" step="0.01">
                 <label for="sharpness">sharpness</label>
             </div>
-        </div>
+        </div> -->
     </div>
 </body>
 </html>

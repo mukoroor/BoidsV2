@@ -2,41 +2,31 @@ import Boid from "./Boid.js"
 import Vector from "./Vector.js"
 import Point from "./Point.js"
 import Canvas from "./Canvas.js"
+import Slider from "./Slider.js"
 
-const range: (HTMLInputElement | null )[] = [...document.querySelectorAll("input")]
 const medium = document.getElementById("medium") as HTMLCanvasElement
 let context: CanvasRenderingContext2D | null;
 const cursorPos = {location: new Point(-1, -1), valid(): boolean {
     return this.location.x >= 0 && this.location.y >= 0
 } }
 
+document.querySelector(".render")?.append(...Object.keys(Boid.params).map(e => Boid.params[e].container))
 
-document.addEventListener("mousemove", (e) => {
+document.addEventListener("mousedown", (e) => {
+    // console.log(e)
+    // console.log(medium.offsetLeft, medium.offsetTop, medium.width, medium.clientHeight, medium.clientWidth)
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
     if (Point.within(mouseLocation, medium.width, medium.height)) {
         cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
         cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
         const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
+        console.log(cursorPos.location)
         console.log(locationVal)
-        if (locationVal) console.log(locationVal)
     } else {
         cursorPos.location.x = -1
         cursorPos.location.y = -1
     }
 })
-
-range.forEach(v => {
-    if (v) inputListener(v, v.id)
-})
-
-function inputListener(element: HTMLInputElement, ObjKey: string): void {
-    if (Boid.params.get(ObjKey)) {
-        element.addEventListener("input", () => {
-            Boid.params.set(ObjKey, Number.parseFloat(element?.value || "0"))
-            element?.setAttribute("value", `${Boid.params.get(ObjKey)}`)
-        })
-    }
-}
 
 function start(count: number) {
     if (medium) {
@@ -66,21 +56,21 @@ function draw() {
         drawBoid(context, k, +data.length?.value, +data.reach?.value)
         k.findNeighbors()
     })
-    let s = Boid.params.get("sharpness") || 0
+    let s = Boid.params.sharpness.value
     Boid.BoidMap.forEach((val, key, t) => {
         let v0 = key.alignWithNeigbors().normalized
         let v1 = key.avoidNeighbors().normalized
         let v2 = key.flockWithNeigbor().normalized
         let v3;
-        if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < (Boid.params.get("range") || Number.MAX_SAFE_INTEGER)) {
+        if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < Boid.params.range.value) {
             v3 = key.followCursor(cursorPos.location).normalized
         }
         let og = key.direction.normalized
 
 
-        let al = Boid.params.get("align") || 0
-        let av = Boid.params.get("avoid") || 0
-        let f = Boid.params.get("flock") || 0
+        let al = Boid.params.align.value
+        let av = Boid.params.avoid.value
+        let f = Boid.params.flock.value
         let dest = new Point(
             og.x + al * s * v0.x + av * s * v1.x + f * s * v2.x + s * (v3?.x || 0),
             og.y + al * s * v0.y + av * s * v1.y + f * s * v2.y + s * (v3?.y || 0)
@@ -156,6 +146,7 @@ document.getElementById("submit")?.addEventListener("click", () => {
 })
 
 function drawPreview() {
+    console.log(previewCanvas.width)
     contextP?.clearRect(0 , 0, previewCanvas.width, previewCanvas.height)
     // if (contextP) drawBoid(contextP, previewBoid, 15 * +data.length?.value, 15 * +data.reach?.value)
 }

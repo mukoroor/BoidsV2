@@ -1,18 +1,19 @@
 import Boid from "./Boid.js"
 
 export default class Canvas {
-    constructor(private _width: number, private _height: number, private _canvasMap: (Boid | null)[][] = []) {
-        for (let i = 0; i < this._width; i++) {
-            let col = [];
-            for (let k = 0; k < this.height; k++) {
-                col.push(null);
-            }
-            this._canvasMap.push(col);
-        }
+    private _canvasMap: (Boid | null)[][]
+
+    constructor(private _width: number, private _height: number) {
+        this._canvasMap = Array(this.width).fill(Array(this.height).fill(null))
+        console.log(this._canvasMap)
     }
 
-    updateMapLocation(b: Boid): void {
+    setBoidLocation(b: Boid): void {
         this._canvasMap[Math.floor(b.location.x)][Math.floor(b.location.y)] = b;
+    }
+
+    clearBoidLocation(b: Boid): void {
+        this._canvasMap[Math.floor(b.location.x)][Math.floor(b.location.y)] = null;
     }
 
     get canvasMap(): (Boid | null)[][] {
