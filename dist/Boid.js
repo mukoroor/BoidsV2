@@ -17,18 +17,11 @@ class Boid {
         const speed = Boid.params.speed.value;
         const canvasWidth = Boid.canvas.width;
         const canvasHeight = Boid.canvas.height;
-        // this._location.x += speed * normal.x;
-        // if (this.location.x >= Boid.canvas.width + 100) this._location.x = -100;
-        // else if (this.location.x <=  -100) this._location.x = Boid.canvas.width + 100;
-        // this._location.y += speed * normal.y;
-        // if (this.location.y >= Boid.canvas.height + 100) this._location.y = -100;
-        // else if (this.location.y <= -100) this._location.y = Boid.canvas.height + 100;
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.clearBoidLocation(this);
         }
         this._location.x = ((this._location.x + speed * normal.x + 100) % (canvasWidth + 200) + (canvasWidth + 200)) % (canvasWidth + 200) - 100;
         this._location.y = ((this._location.y + speed * normal.y + 100) % (canvasHeight + 200) + (canvasHeight + 200)) % (canvasHeight + 200) - 100;
-        // this._location.y = (this._location.y + speed * normal.y + 100) % (canvasHeight + 200) - 100;
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.setBoidLocation(this);
         }
@@ -91,6 +84,7 @@ Boid.params = {
     sharpness: new Slider(0, 2, { step: 0.01, initialValue: 0.1, name: "sharpness" }),
     align: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "align" }),
     avoid: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "avoid" }),
-    flock: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "flock" })
+    flock: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "flock" }),
+    cursor: new Slider(0, 10, { step: 0.25, initialValue: 1, name: "cursor power" })
 };
 export default Boid;

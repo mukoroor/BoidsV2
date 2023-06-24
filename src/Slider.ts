@@ -1,5 +1,3 @@
-import Point from "./Point.js"
-
 export default class Slider {
     private _data: {thumb: HTMLElement, track: HTMLElement, value: HTMLElement}
     private _container: HTMLElement

@@ -2,7 +2,6 @@ import Boid from "./Boid.js"
 import Vector from "./Vector.js"
 import Point from "./Point.js"
 import Canvas from "./Canvas.js"
-import Slider from "./Slider.js"
 
 const medium = document.getElementById("medium") as HTMLCanvasElement
 let context: CanvasRenderingContext2D | null;
@@ -16,12 +15,12 @@ Object.keys(Boid.params).forEach(e => {
     Boid.params[e].initThumb()
 })
 
-document.addEventListener("mouseover", (e) => {
+document.addEventListener("mousemove", (e) => {
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
     if (Point.within(mouseLocation, medium.width, medium.height)) {
         cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
         cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
-        const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
+        // const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
     } else {
         cursorPos.location.x = -1
         cursorPos.location.y = -1
@@ -66,16 +65,18 @@ function draw() {
         let v3;
         if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < Boid.params.range.value) {
             v3 = key.followCursor(cursorPos.location).normalized
+            // console.log(v3)
         }
         let og = key.direction.normalized
 
 
         let al = Boid.params.align.value
         let av = Boid.params.avoid.value
-        let f = Boid.params.flock.value
+        let fl = Boid.params.flock.value
+        let cu = Boid.params.cursor.value
         let dest = new Point(
-            og.x + al * s * v0.x + av * s * v1.x + f * s * v2.x + s * (v3?.x || 0),
-            og.y + al * s * v0.y + av * s * v1.y + f * s * v2.y + s * (v3?.y || 0)
+            og.x + al * s * v0.x + av * s * v1.x + fl * s * v2.x + cu * s * (v3?.x ?? 0),
+            og.y + al * s * v0.y + av * s * v1.y + fl * s * v2.y + cu * s * (v3?.y ?? 0)
         )
 
         t.set(key, new Vector(dest))

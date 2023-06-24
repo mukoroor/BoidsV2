@@ -13,13 +13,12 @@ Object.keys(Boid.params).forEach(e => {
     preview === null || preview === void 0 ? void 0 : preview.insertBefore(Boid.params[e].container, preview.lastElementChild);
     Boid.params[e].initThumb();
 });
-document.addEventListener("mouseover", (e) => {
-    var _a;
+document.addEventListener("mousemove", (e) => {
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop);
     if (Point.within(mouseLocation, medium.width, medium.height)) {
         cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth;
         cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight;
-        const locationVal = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)];
+        // const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
     }
     else {
         cursorPos.location.x = -1;
@@ -55,18 +54,21 @@ function draw() {
     });
     let s = Boid.params.sharpness.value;
     Boid.BoidMap.forEach((val, key, t) => {
+        var _a, _b;
         let v0 = key.alignWithNeigbors().normalized;
         let v1 = key.avoidNeighbors().normalized;
         let v2 = key.flockWithNeigbor().normalized;
         let v3;
         if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < Boid.params.range.value) {
             v3 = key.followCursor(cursorPos.location).normalized;
+            // console.log(v3)
         }
         let og = key.direction.normalized;
         let al = Boid.params.align.value;
         let av = Boid.params.avoid.value;
-        let f = Boid.params.flock.value;
-        let dest = new Point(og.x + al * s * v0.x + av * s * v1.x + f * s * v2.x + s * ((v3 === null || v3 === void 0 ? void 0 : v3.x) || 0), og.y + al * s * v0.y + av * s * v1.y + f * s * v2.y + s * ((v3 === null || v3 === void 0 ? void 0 : v3.y) || 0));
+        let fl = Boid.params.flock.value;
+        let cu = Boid.params.cursor.value;
+        let dest = new Point(og.x + al * s * v0.x + av * s * v1.x + fl * s * v2.x + cu * s * ((_a = v3 === null || v3 === void 0 ? void 0 : v3.x) !== null && _a !== void 0 ? _a : 0), og.y + al * s * v0.y + av * s * v1.y + fl * s * v2.y + cu * s * ((_b = v3 === null || v3 === void 0 ? void 0 : v3.y) !== null && _b !== void 0 ? _b : 0));
         t.set(key, new Vector(dest));
     });
     Boid.BoidMap.forEach((v, k) => {
