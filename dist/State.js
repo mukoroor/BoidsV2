@@ -8,18 +8,15 @@ let context;
 const cursorPos = { location: new Point(-1, -1), valid() {
         return this.location.x >= 0 && this.location.y >= 0;
     } };
-(_a = document.querySelector(".render")) === null || _a === void 0 ? void 0 : _a.append(...Object.keys(Boid.params).map(e => Boid.params[e].container));
-document.addEventListener("mousedown", (e) => {
+(_a = document.querySelector(".preview")) === null || _a === void 0 ? void 0 : _a.append(...Object.keys(Boid.params).map(e => Boid.params[e].container));
+Object.keys(Boid.params).forEach(e => Boid.params[e].initThumb());
+document.addEventListener("mouseover", (e) => {
     var _a;
-    // console.log(e)
-    // console.log(medium.offsetLeft, medium.offsetTop, medium.width, medium.clientHeight, medium.clientWidth)
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop);
     if (Point.within(mouseLocation, medium.width, medium.height)) {
         cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth;
         cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight;
         const locationVal = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)];
-        console.log(cursorPos.location);
-        console.log(locationVal);
     }
     else {
         cursorPos.location.x = -1;
@@ -29,6 +26,8 @@ document.addEventListener("mousedown", (e) => {
 function start(count) {
     if (medium) {
         Boid.BoidMap.clear();
+        medium.width = medium.clientWidth * 5;
+        medium.height = medium.clientHeight * 5;
         Boid.canvas = new Canvas(medium.width, medium.height);
     }
     for (let i = 0; i < count; i++) {
@@ -136,7 +135,7 @@ document.querySelectorAll(".preview input").forEach(e => {
     start(+((_a = document.getElementById("count")) === null || _a === void 0 ? void 0 : _a.value));
 });
 function drawPreview() {
-    console.log(previewCanvas.width);
+    // console.log(previewCanvas.width)
     contextP === null || contextP === void 0 ? void 0 : contextP.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     // if (contextP) drawBoid(contextP, previewBoid, 15 * +data.length?.value, 15 * +data.reach?.value)
 }

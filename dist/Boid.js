@@ -1,7 +1,7 @@
 import Vector from "./Vector.js";
 import Point from "./Point.js";
 import Slider from "./Slider.js";
-class Boid {
+export default class Boid {
     constructor(_location, _direction, _color, _neighbors = new Map()) {
         this._location = _location;
         this._direction = _direction;
@@ -24,8 +24,9 @@ class Boid {
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.clearBoidLocation(this);
         }
-        this._location.x = (this._location.x + speed * normal.x + 100) % (canvasWidth + 200) - 100;
-        this._location.y = (this._location.y + speed * normal.y + 100) % (canvasHeight + 200) - 100;
+        this._location.x = ((this._location.x + speed * normal.x + 100) % (canvasWidth + 200) + (canvasWidth + 200)) % (canvasWidth + 200) - 100;
+        this._location.y = ((this._location.y + speed * normal.y + 100) % (canvasHeight + 200) + (canvasHeight + 200)) % (canvasHeight + 200) - 100;
+        // this._location.y = (this._location.y + speed * normal.y + 100) % (canvasHeight + 200) - 100;
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.setBoidLocation(this);
         }
@@ -83,11 +84,10 @@ class Boid {
 }
 Boid.BoidMap = new Map();
 Boid.params = {
-    speed: new Slider(0, 20),
-    range: new Slider(0, 1024),
-    sharpness: new Slider(0, 2),
-    align: new Slider(0, 5),
-    avoid: new Slider(0, 5),
-    flock: new Slider(0, 5)
+    speed: new Slider(0, 20, { step: 0.5, initialValue: 1, name: "speed", unit: "px/s" }),
+    range: new Slider(0, 1024, { step: 1, initialValue: 28, name: "range", unit: "px" }),
+    sharpness: new Slider(0, 2, { step: 0.01, initialValue: 0.1, name: "sharpness" }),
+    align: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "align" }),
+    avoid: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "avoid" }),
+    flock: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "flock" })
 };
-export default Boid;

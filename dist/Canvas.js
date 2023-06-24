@@ -3,7 +3,7 @@ export default class Canvas {
         this._width = _width;
         this._height = _height;
         this._canvasMap = Array(this.width).fill(Array(this.height).fill(null));
-        console.log(this._canvasMap);
+        // console.log(this._canvasMap)
     }
     setBoidLocation(b) {
         this._canvasMap[Math.floor(b.location.x)][Math.floor(b.location.y)] = b;

@@ -5,7 +5,7 @@ export default class Canvas {
 
     constructor(private _width: number, private _height: number) {
         this._canvasMap = Array(this.width).fill(Array(this.height).fill(null))
-        console.log(this._canvasMap)
+        // console.log(this._canvasMap)
     }
 
     setBoidLocation(b: Boid): void {

@@ -10,18 +10,15 @@ const cursorPos = {location: new Point(-1, -1), valid(): boolean {
     return this.location.x >= 0 && this.location.y >= 0
 } }
 
-document.querySelector(".render")?.append(...Object.keys(Boid.params).map(e => Boid.params[e].container))
+document.querySelector(".preview")?.append(...Object.keys(Boid.params).map(e => Boid.params[e].container))
+Object.keys(Boid.params).forEach(e => Boid.params[e].initThumb())
 
-document.addEventListener("mousedown", (e) => {
-    // console.log(e)
-    // console.log(medium.offsetLeft, medium.offsetTop, medium.width, medium.clientHeight, medium.clientWidth)
+document.addEventListener("mouseover", (e) => {
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
     if (Point.within(mouseLocation, medium.width, medium.height)) {
         cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
         cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
         const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
-        console.log(cursorPos.location)
-        console.log(locationVal)
     } else {
         cursorPos.location.x = -1
         cursorPos.location.y = -1
@@ -31,6 +28,8 @@ document.addEventListener("mousedown", (e) => {
 function start(count: number) {
     if (medium) {
         Boid.BoidMap.clear()
+        medium.width = medium.clientWidth * 5
+        medium.height = medium.clientHeight * 5
         Boid.canvas = new Canvas(medium.width, medium.height)
     }
 
@@ -146,7 +145,7 @@ document.getElementById("submit")?.addEventListener("click", () => {
 })
 
 function drawPreview() {
-    console.log(previewCanvas.width)
+    // console.log(previewCanvas.width)
     contextP?.clearRect(0 , 0, previewCanvas.width, previewCanvas.height)
     // if (contextP) drawBoid(contextP, previewBoid, 15 * +data.length?.value, 15 * +data.reach?.value)
 }
