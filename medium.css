@@ -1,9 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Vina+Sans&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Vina+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex');
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
 * {
     /* font-family: 'Vina Sans', cursive; */
     font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -13,7 +15,7 @@
 
 body {
     display: grid;
-    grid-template-columns: minmax(min-content, 4fr) 16fr;
+    grid-template-columns: minmax(min-content, 1fr) 4fr;
     grid-template-rows: 1fr;
     gap: 0 1vmin;
     padding: 1vmin;
@@ -23,40 +25,47 @@ body {
 
 .slider {
     display: grid;
-    grid-template-columns: 1fr min-content min-content;
+    gap: 5% 0;
+    grid-template-columns: repeat(5, minmax(min-content, 1fr));
+    grid-auto-rows: max-content;
     font-size: 1em;
-    font-weight: 500;
-    color: crimson;
-    margin: 2ex 0;
+    /* color: crimson; */
 }
 
 .slider > div:not(.track) {
-    width: 12ch;
     user-select: none;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-transform: lowercase;
-    padding: 0 1ex;
+}
+
+.slider .label {
+    text-align: right;
+    grid-column-end: -1;
 }
 
 .slider .track {
-    height: 1ex;
+    --x: 0px;
+    grid-column: 1/-1;
+    height: 1lh;
     position: relative;
-    background-color: tomato;
+    border-radius: 0.1lh;
+    background: rgb(209, 207, 207) linear-gradient(to right, rgba(0, 0, 0, 0.5) 0 var(--x), transparent var(--x) 100%);
 }
 
 .slider .thumb {
     top: 0;
     left: 0;
-    --x: 0px;
     width: 2%;
-    /* height: 300%; */
-    min-height: 1ex;
-    min-width: 1ex;
+    width: 1.5ex;
+    height: 1lh;
     position: absolute;
-    background-color: #dc143c;
+    border-radius: 0.1lh;
+    background-color: black;
     translate: calc(var(--x) - 50%);
+    transform: scale(1.1);
+    transform-origin: center;
 }
 
 .preview {
@@ -64,7 +73,28 @@ body {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    gap: 1vmin;
+}
+
+.preview .data {
+    display: grid;
+    gap: 0.5lh 0;
+    align-items: center;
+    text-transform: capitalize;
+    grid-template-columns: 8ch 1fr;
+}
+
+.preview .data input[type="number"] {
+    font-size: 1em;
+}
+
+button {
+    border: none;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 0.5lh 0;
     text-transform: uppercase;
+    font-size: 1.25em;
+    border-radius: 0.2lh;
 }
 
 #pred {
@@ -75,26 +105,24 @@ body {
 .select {
     margin-top: 5px;
     display: flex;
-    gap: 2ex;
+    gap: 1ex;
     justify-content: center;
     align-self: stretch;
 }
 
 .select > * {
     flex-grow: 1;
-    text-align: center;
-    padding: 0.075lh;
-    background: 1px hsl(0, 0%, 96%);
-    outline: 1px solid hsla(0, 0%, 0%, 0.1);
-    border-radius: 0.1lh;
+    padding: 0.25lh;
+    font-size: 0.9em;
 }
 
 .select .clicked {
-    background-color: hsl(348, 83%, 50%);
+    background-color: hsla(348, 83%, 50%, 0.1);
 }
 
 canvas {
-    outline: 2px solid rgba(0, 0, 0, 0.25);
+    border-radius: 0.5ex;
+    box-shadow: inset 0 0 2ex rgba(0, 0, 0, 0.1);
 }
 
 #medium {
@@ -115,7 +143,9 @@ input[type="color"]::-webkit-color-swatch {
     border-radius: 0.5ex;
 }
 
-button {
+input[type="number"] {
+    appearance: none;
     border: none;
+    border-bottom: 1px solid black;
+    width: 5ch;
 }
-

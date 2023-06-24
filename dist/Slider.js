@@ -23,18 +23,18 @@ export default class Slider {
         thumb.addEventListener("mousedown", (e) => _slider.dragStart(e));
         track.addEventListener("mousemove", (e) => _slider.drag(e));
         thumb.addEventListener("mouseup", () => _slider.dragEnd());
+        track.addEventListener("mouseup", () => _slider.dragEnd());
         track.addEventListener("mouseleave", () => _slider.dragEnd());
         track.addEventListener("click", (e) => _slider.jump(e));
         this._data = { thumb, track, value };
         this.updateValue((_c = options === null || options === void 0 ? void 0 : options.initialValue) !== null && _c !== void 0 ? _c : this._min);
     }
     initThumb() {
-        console.log("a");
-        this._data.thumb.style.setProperty("--x", `${((this.value - this._min) / this._step) * (this._data.track.clientWidth / this.divisions())}px`);
+        this._data.track.style.setProperty("--x", `${((this.value - this._min) / this._step) * (this._data.track.clientWidth / this.divisions())}px`);
     }
     updateValue(newVal) {
         this._value = newVal >= this._min && newVal <= this._max ? newVal : newVal > this.value ? this._max : this._min;
-        this._data.value.textContent = this._value + ' ' + (this._unit || "");
+        this._data.value.textContent = this._value.toFixed(2) + ' ' + (this._unit || '');
     }
     dragStart(e) {
         this._dragging = true;
@@ -55,7 +55,7 @@ export default class Slider {
             this.updateValue(this._min + f * this._step);
             f *= length;
             if (f <= this._data.track.clientWidth && f >= 0)
-                this._data.thumb.style.setProperty("--x", `${f}px`);
+                this._data.track.style.setProperty("--x", `${f}px`);
         }
     }
     dragEnd() {
@@ -68,7 +68,7 @@ export default class Slider {
         let length = this._data.track.clientWidth / this.divisions();
         let f = Math.round(relX / length);
         this.updateValue(this._min + f * this._step);
-        this._data.thumb.style.setProperty("--x", `${f * length}px`);
+        this._data.track.style.setProperty("--x", `${f * length}px`);
     }
     divisions() {
         return (this._max - this._min) / this._step;

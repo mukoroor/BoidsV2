@@ -1,4 +1,4 @@
-var _a, _b;
+var _a;
 import Boid from "./Boid.js";
 import Vector from "./Vector.js";
 import Point from "./Point.js";
@@ -8,8 +8,11 @@ let context;
 const cursorPos = { location: new Point(-1, -1), valid() {
         return this.location.x >= 0 && this.location.y >= 0;
     } };
-(_a = document.querySelector(".preview")) === null || _a === void 0 ? void 0 : _a.append(...Object.keys(Boid.params).map(e => Boid.params[e].container));
-Object.keys(Boid.params).forEach(e => Boid.params[e].initThumb());
+const preview = document.querySelector(".preview");
+Object.keys(Boid.params).forEach(e => {
+    preview === null || preview === void 0 ? void 0 : preview.insertBefore(Boid.params[e].container, preview.lastElementChild);
+    Boid.params[e].initThumb();
+});
 document.addEventListener("mouseover", (e) => {
     var _a;
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop);
@@ -113,8 +116,7 @@ const data = {
     reach: document.getElementById("reach")
 };
 let selectedMode = "0";
-// let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)))
-// Boid.BoidMap.delete(previewBoid)
+let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), { external: false });
 let curr;
 for (const option of options) {
     option.addEventListener("click", () => {
@@ -122,20 +124,22 @@ for (const option of options) {
         curr = option;
         curr === null || curr === void 0 ? void 0 : curr.classList.toggle("clicked");
         selectedMode = (option === null || option === void 0 ? void 0 : option.getAttribute("mode")) || "0";
-        // window.requestAnimationFrame(drawPreview)
+        window.requestAnimationFrame(drawPreview);
     });
 }
+(select === null || select === void 0 ? void 0 : select.firstElementChild).click();
 document.querySelectorAll(".preview input").forEach(e => {
     e.addEventListener("input", () => {
         window.requestAnimationFrame(drawPreview);
     });
 });
-(_b = document.getElementById("submit")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
+(_a = document.getElementById("submit")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
     var _a;
     start(+((_a = document.getElementById("count")) === null || _a === void 0 ? void 0 : _a.value));
 });
 function drawPreview() {
-    // console.log(previewCanvas.width)
+    var _a, _b;
     contextP === null || contextP === void 0 ? void 0 : contextP.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-    // if (contextP) drawBoid(contextP, previewBoid, 15 * +data.length?.value, 15 * +data.reach?.value)
+    if (contextP)
+        drawBoid(contextP, previewBoid, 5 * +((_a = data.length) === null || _a === void 0 ? void 0 : _a.value), 5 * +((_b = data.reach) === null || _b === void 0 ? void 0 : _b.value));
 }

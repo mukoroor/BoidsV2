@@ -20,8 +20,9 @@ export default class Boid {
     constructor(
         private _location: Point,
         private _direction: Vector,
-        private _color?: string,
+        options?: {color?: string, external?: boolean},
         private _neighbors: Map<Boid, number> = new Map()) {
+            if (!(options?.external ?? true)) return
             Boid.BoidMap.set(this, new Vector())
             Boid.canvas.setBoidLocation(this)
     }

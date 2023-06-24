@@ -10,8 +10,11 @@ const cursorPos = {location: new Point(-1, -1), valid(): boolean {
     return this.location.x >= 0 && this.location.y >= 0
 } }
 
-document.querySelector(".preview")?.append(...Object.keys(Boid.params).map(e => Boid.params[e].container))
-Object.keys(Boid.params).forEach(e => Boid.params[e].initThumb())
+const preview = document.querySelector(".preview")
+Object.keys(Boid.params).forEach(e => {
+    preview?.insertBefore(Boid.params[e].container, preview.lastElementChild)
+    Boid.params[e].initThumb()
+})
 
 document.addEventListener("mouseover", (e) => {
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
@@ -122,8 +125,7 @@ const data = {
     reach: document.getElementById("reach") as HTMLInputElement
 }
 let selectedMode = "0";
-// let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)))
-// Boid.BoidMap.delete(previewBoid)
+let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), {external: false})
 let curr: Element;
 for (const option of options) {
     option.addEventListener("click", () => {
@@ -131,9 +133,12 @@ for (const option of options) {
         curr = option
         curr?.classList.toggle("clicked")
         selectedMode = option?.getAttribute("mode") || "0"
-        // window.requestAnimationFrame(drawPreview)
+        window.requestAnimationFrame(drawPreview)
     })
 }
+
+(select?.firstElementChild as HTMLButtonElement).click()
+
 document.querySelectorAll(".preview input").forEach(e => {
     e.addEventListener("input", () => {
         window.requestAnimationFrame(drawPreview)
@@ -145,7 +150,6 @@ document.getElementById("submit")?.addEventListener("click", () => {
 })
 
 function drawPreview() {
-    // console.log(previewCanvas.width)
     contextP?.clearRect(0 , 0, previewCanvas.width, previewCanvas.height)
-    // if (contextP) drawBoid(contextP, previewBoid, 15 * +data.length?.value, 15 * +data.reach?.value)
+    if (contextP) drawBoid(contextP, previewBoid, 5 * +data.length?.value, 5 * +data.reach?.value)
 }

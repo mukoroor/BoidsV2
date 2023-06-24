@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="medium.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <script src="./dist/State.js" type="module"></script>
 </head>
 <body>
@@ -18,14 +17,16 @@
             <button id="circle" mode="2">Circle</button>
             <button id="circle" mode="3">Square</button>
         </div>
-        <label for="color">color</label>
-        <input id="color" type="color">
-        <label for="length">length</label>
-        <input id="length" type="number" min="5" max="200" value="100">
-        <label for="reach">reach</label>
-        <input id="reach" type="number" min="5" max="200" value="50">
-        <label for="count">count</label>
-        <input id="count" type="number" min="5" max="600" value="200">
+        <div class="data">
+            <label for="color">color</label>
+            <input id="color" type="color">
+            <label for="length">length</label>
+            <input id="length" type="number" min="5" max="200" value="100">
+            <label for="reach">reach</label>
+            <input id="reach" type="number" min="5" max="200" value="50">
+            <label for="count">count</label>
+            <input id="count" type="number" min="5" max="600" value="200">
+        </div>
         <button id="submit">submit</button>
     </div>
     <canvas id="medium"></canvas>

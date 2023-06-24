@@ -1,12 +1,14 @@
 import Vector from "./Vector.js";
 import Point from "./Point.js";
 import Slider from "./Slider.js";
-export default class Boid {
-    constructor(_location, _direction, _color, _neighbors = new Map()) {
+class Boid {
+    constructor(_location, _direction, options, _neighbors = new Map()) {
+        var _a;
         this._location = _location;
         this._direction = _direction;
-        this._color = _color;
         this._neighbors = _neighbors;
+        if (!((_a = options === null || options === void 0 ? void 0 : options.external) !== null && _a !== void 0 ? _a : true))
+            return;
         Boid.BoidMap.set(this, new Vector());
         Boid.canvas.setBoidLocation(this);
     }
@@ -91,3 +93,4 @@ Boid.params = {
     avoid: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "avoid" }),
     flock: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "flock" })
 };
+export default Boid;

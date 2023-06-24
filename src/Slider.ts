@@ -32,6 +32,7 @@ export default class Slider {
         thumb.addEventListener("mousedown", (e) => _slider.dragStart(e))
         track.addEventListener("mousemove", (e) => _slider.drag(e))
         thumb.addEventListener("mouseup", () => _slider.dragEnd())
+        track.addEventListener("mouseup", () => _slider.dragEnd())
         track.addEventListener("mouseleave", () => _slider.dragEnd())
         track.addEventListener("click", (e) => _slider.jump(e))
 
@@ -41,13 +42,12 @@ export default class Slider {
     }
 
     initThumb(): void {
-        console.log("a")
-        this._data.thumb.style.setProperty("--x", `${((this.value - this._min) / this._step) *  (this._data.track.clientWidth / this.divisions())}px`)
+        this._data.track.style.setProperty("--x", `${((this.value - this._min) / this._step) *  (this._data.track.clientWidth / this.divisions())}px`)
     }
 
     updateValue(newVal: number): void {
         this._value = newVal >= this._min && newVal <= this._max ? newVal : newVal > this.value ? this._max : this._min
-        this._data.value.textContent = this._value + ' ' + (this._unit || "")
+        this._data.value.textContent = this._value.toFixed(2) + ' ' + (this._unit || '')
     }
 
     dragStart(e: MouseEvent): void {
@@ -66,7 +66,7 @@ export default class Slider {
             } else return
             this.updateValue(this._min + f * this._step)
             f *= length
-            if (f <= this._data.track.clientWidth && f >= 0) this._data.thumb.style.setProperty("--x", `${f}px`)
+            if (f <= this._data.track.clientWidth && f >= 0) this._data.track.style.setProperty("--x", `${f}px`)
         }
     }
 
@@ -80,7 +80,7 @@ export default class Slider {
         let length = this._data.track.clientWidth / this.divisions()
         let f = Math.round(relX / length)
         this.updateValue(this._min + f * this._step)
-        this._data.thumb.style.setProperty("--x", `${f * length}px`)
+        this._data.track.style.setProperty("--x", `${f * length}px`)
     }
 
     private divisions(): number {
