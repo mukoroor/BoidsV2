@@ -3,45 +3,35 @@ import Vector from "./Vector.js"
 import Point from "./Point.js"
 import Canvas from "./Canvas.js"
 
-const medium = document.getElementById("medium") as HTMLCanvasElement
-let context: CanvasRenderingContext2D | null;
-const cursorPos = {location: new Point(-1, -1), valid(): boolean {
-    return this.location.x >= 0 && this.location.y >= 0
-} }
-
-const preview = document.querySelector(".preview")
-Object.keys(Boid.params).forEach(e => {
-    preview?.insertBefore(Boid.params[e].container, preview.lastElementChild)
-    Boid.params[e].initThumb()
-})
-
-medium.addEventListener("mousedown", (e) => {
-    const l = Boid.canvas?.searchLocationBFS(cursorPos.location, 100)
-    if (l) l.color = "red"
-})
-
-medium.addEventListener("mousemove", updateCursor)
-
-
 function updateCursor(e : MouseEvent) {
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
     cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
     cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
 }
 
+function drawPreview() {
+    if (!contextP) return
+    contextP.clearRect(0 , 0, previewCanvas.width, previewCanvas.height)
+    data.updateBoid(previewBoid)
+    drawBoid(contextP, previewBoid)
+}
+
 function start(count: number) {
     if (medium) {
         Boid.BoidMap.clear()
-        medium.width = medium.clientWidth * 5
-        medium.height = medium.clientHeight * 5
+        medium.width = medium.clientWidth * 6
+        medium.height = medium.clientHeight * 6
         Boid.canvas = new Canvas(medium.width, medium.height)
     }
 
+    const {length, breadth} = data.getDimesions()
+    const color = data.getColor()
     for(let i = 0; i < count; i++) {
         const loc = new Point(Math.random() * ( medium?.width || 0),Math.random() * (medium?.height || 0))
         const d = new Point(Math.random() * 2 - 1, Math.random() * 2 - 1)
         const direc = new Vector(d)
-        new Boid(loc, direc)
+        const boid = new Boid(loc, direc, {length, breadth})
+        boid.color = color
     }
 
     if (medium?.getContext("2d")) {
@@ -51,13 +41,13 @@ function start(count: number) {
     
 }
 
-
 function draw() {
     context?.clearRect(0, 0, medium?.width || 0, medium?.height || 0)
     Boid.BoidMap.forEach( (v, k) => {
         if (context)
-        drawBoid(context, k, +data.length?.value, +data.reach?.value)
+        drawBoid(context, k)
         k.findNeighbors()
+        // k.findNeigborsBFS()
     })
     let s = Boid.params.agility.value
     Boid.BoidMap.forEach((val, key, t) => {
@@ -99,52 +89,92 @@ function draw() {
     window.requestAnimationFrame(draw)
 }
 
-function drawBoid(context: CanvasRenderingContext2D, boid: Boid, fullLength: number, tailReach: number) {
-    if (context) {
-        context.save();
-        context.translate(boid.location.x, boid.location.y);
-        context.rotate(boid.direction.angle);
-        context.beginPath();
-        if (selectedMode == "0") {
-            context.lineTo(-fullLength /2, -tailReach / 2);
-            context.lineTo(fullLength / 2, 0);
-            context.lineTo(-fullLength / 2, tailReach / 2);
-        } else if (selectedMode == "1") {
-            context.moveTo(0, 0);
-            context.lineTo(-fullLength / 2, -tailReach / 2);
-            context.lineTo(fullLength / 2, 0);
-            context.lineTo(-fullLength / 2, tailReach / 2);
-        } else if (selectedMode == "2") {
-            context.ellipse(0, 0, fullLength / 2, tailReach / 2, 0, 0, 2 * Math.PI);
-        } else {
-            context.roundRect(-fullLength / 2, -tailReach / 2, fullLength, tailReach, Math.min(tailReach, fullLength) / 20)
-        }
-        context.closePath();
-        context.fillStyle = boid.color || (document.getElementById("color") as HTMLInputElement)?.value
-        context.fill();
-        context.stroke();
-        context.restore();
+function drawBoid(context: CanvasRenderingContext2D, boid: Boid) {
+    if (!context) return
+    const {length , breadth} = boid.dimensions
+    context.save();
+    context.translate(boid.location.x, boid.location.y);
+    context.rotate(boid.direction.angle);
+    context.beginPath();
+    if (selectedMode == Mode.Triangle) {
+        context.lineTo(-length /2, -breadth / 2);
+        context.lineTo(length / 2, 0);
+        context.lineTo(-length / 2, breadth / 2);
+    } else if (selectedMode == Mode.Arrow) {
+        context.moveTo(0, 0);
+        context.lineTo(-length / 2, -breadth / 2);
+        context.lineTo(length / 2, 0);
+        context.lineTo(-length / 2, breadth / 2);
+    } else if (selectedMode == Mode.Circle) {
+        context.ellipse(0, 0, length / 2, breadth / 2, 0, 0, 2 * Math.PI);
+    } else {
+        context.roundRect(-length / 2, -breadth / 2, length, breadth, Math.min(length, breadth) / 20)
     }
+    context.closePath();
+    context.fillStyle = boid.color || 'black'
+    context.fill();
+    context.stroke();
+    context.restore();
 }
 
-const select = document.querySelector(".select")
-const options = select?.children || []
+const medium = document.getElementById("medium") as HTMLCanvasElement
+let context: CanvasRenderingContext2D | null;
 const previewCanvas = document.querySelector(".preview canvas") as HTMLCanvasElement
 let contextP = previewCanvas?.getContext("2d")
+
+const select = document.querySelector(".select")
+const preview = document.querySelector(".preview")
+const options = select?.children || []
+
 const data = {
     color: document.getElementById("color") as HTMLInputElement,
     length:  document.getElementById("length") as HTMLInputElement,
-    reach: document.getElementById("reach") as HTMLInputElement
+    breadth: document.getElementById("breadth") as HTMLInputElement,
+
+    getDimesions(): {length: number, breadth: number} {
+        return {length: +data.length.value, breadth: +data.breadth.value}
+    },
+
+    getColor(): string {
+        return data.color.value
+    },
+
+    updateBoid(b : Boid): void {
+        b.dimensions = this.getDimesions()
+        b.color = this.getColor()
+    }
 }
-let selectedMode = "0";
-let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), {external: false})
+
+enum Mode {Triangle, Arrow, Circle, Square}
+let selectedMode = Mode.Triangle
+
+const previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), 
+    data.getDimesions(), {external: false})
 let curr: Element;
+
+const cursorPos = {location: new Point(-1, -1), valid(): boolean {
+    return this.location.x >= 0 && this.location.y >= 0
+} }
+
+Object.keys(Boid.params).forEach(e => {
+    preview?.insertBefore(Boid.params[e].container, preview.lastElementChild)
+    Boid.params[e].initThumb()
+})
+
+medium.addEventListener("mousedown", (e) => {
+    const clickedBoid = Boid.canvas?.searchLocationBFS(cursorPos.location, 100)
+    if (!clickedBoid) return
+    data.updateBoid(clickedBoid)
+})
+
+medium.addEventListener("mousemove", updateCursor)
+
 for (const option of options) {
     option.addEventListener("click", () => {
         curr?.classList.toggle("clicked")
         curr = option
         curr?.classList.toggle("clicked")
-        selectedMode = option?.getAttribute("mode") || "0"
+        selectedMode = +(option?.getAttribute("mode") ?? 0)
         window.requestAnimationFrame(drawPreview)
     })
 }
@@ -161,10 +191,7 @@ document.getElementById("submit")?.addEventListener("click", () => {
     start(+(document.getElementById("count") as HTMLInputElement)?.value)
 })
 
-function drawPreview() {
-    contextP?.clearRect(0 , 0, previewCanvas.width, previewCanvas.height)
-    if (contextP) drawBoid(contextP, previewBoid, 5 * +data.length?.value, 5 * +data.reach?.value)
-}
+
 
 const body  = document.querySelector("body")
 document.querySelector(".mode")?.addEventListener("click", () => {

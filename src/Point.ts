@@ -31,6 +31,6 @@ export default class Point {
         if (p instanceof Point) {
             return minX <= p.x  && p.x <= maxX &&  minY <= p.y  && p.y <= maxY;
         }
-        return minX <= p[0]  && p[0] <= maxX &&  minY <= p[1]  && p[1] <= maxY;
+        return minX <= p[0]  && p[0] < maxX &&  minY <= p[1]  && p[1] < maxY;
     }
 }

@@ -3,40 +3,33 @@ import Boid from "./Boid.js";
 import Vector from "./Vector.js";
 import Point from "./Point.js";
 import Canvas from "./Canvas.js";
-const medium = document.getElementById("medium");
-let context;
-const cursorPos = { location: new Point(-1, -1), valid() {
-        return this.location.x >= 0 && this.location.y >= 0;
-    } };
-const preview = document.querySelector(".preview");
-Object.keys(Boid.params).forEach(e => {
-    preview === null || preview === void 0 ? void 0 : preview.insertBefore(Boid.params[e].container, preview.lastElementChild);
-    Boid.params[e].initThumb();
-});
-medium.addEventListener("mousedown", (e) => {
-    var _a;
-    const l = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.searchLocationBFS(cursorPos.location, 100);
-    if (l)
-        l.color = "red";
-});
-medium.addEventListener("mousemove", updateCursor);
 function updateCursor(e) {
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop);
     cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth;
     cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight;
 }
+function drawPreview() {
+    if (!contextP)
+        return;
+    contextP.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    data.updateBoid(previewBoid);
+    drawBoid(contextP, previewBoid);
+}
 function start(count) {
     if (medium) {
         Boid.BoidMap.clear();
-        medium.width = medium.clientWidth * 5;
-        medium.height = medium.clientHeight * 5;
+        medium.width = medium.clientWidth * 6;
+        medium.height = medium.clientHeight * 6;
         Boid.canvas = new Canvas(medium.width, medium.height);
     }
+    const { length, breadth } = data.getDimesions();
+    const color = data.getColor();
     for (let i = 0; i < count; i++) {
         const loc = new Point(Math.random() * ((medium === null || medium === void 0 ? void 0 : medium.width) || 0), Math.random() * ((medium === null || medium === void 0 ? void 0 : medium.height) || 0));
         const d = new Point(Math.random() * 2 - 1, Math.random() * 2 - 1);
         const direc = new Vector(d);
-        new Boid(loc, direc);
+        const boid = new Boid(loc, direc, { length, breadth });
+        boid.color = color;
     }
     if (medium === null || medium === void 0 ? void 0 : medium.getContext("2d")) {
         context = medium.getContext("2d");
@@ -47,10 +40,10 @@ function start(count) {
 function draw() {
     context === null || context === void 0 ? void 0 : context.clearRect(0, 0, (medium === null || medium === void 0 ? void 0 : medium.width) || 0, (medium === null || medium === void 0 ? void 0 : medium.height) || 0);
     Boid.BoidMap.forEach((v, k) => {
-        var _a, _b;
         if (context)
-            drawBoid(context, k, +((_a = data.length) === null || _a === void 0 ? void 0 : _a.value), +((_b = data.reach) === null || _b === void 0 ? void 0 : _b.value));
+            drawBoid(context, k);
         k.findNeighbors();
+        // k.findNeigborsBFS()
     });
     let s = Boid.params.agility.value;
     Boid.BoidMap.forEach((val, key, t) => {
@@ -84,55 +77,91 @@ function draw() {
     });
     window.requestAnimationFrame(draw);
 }
-function drawBoid(context, boid, fullLength, tailReach) {
-    var _a;
-    if (context) {
-        context.save();
-        context.translate(boid.location.x, boid.location.y);
-        context.rotate(boid.direction.angle);
-        context.beginPath();
-        if (selectedMode == "0") {
-            context.lineTo(-fullLength / 2, -tailReach / 2);
-            context.lineTo(fullLength / 2, 0);
-            context.lineTo(-fullLength / 2, tailReach / 2);
-        }
-        else if (selectedMode == "1") {
-            context.moveTo(0, 0);
-            context.lineTo(-fullLength / 2, -tailReach / 2);
-            context.lineTo(fullLength / 2, 0);
-            context.lineTo(-fullLength / 2, tailReach / 2);
-        }
-        else if (selectedMode == "2") {
-            context.ellipse(0, 0, fullLength / 2, tailReach / 2, 0, 0, 2 * Math.PI);
-        }
-        else {
-            context.roundRect(-fullLength / 2, -tailReach / 2, fullLength, tailReach, Math.min(tailReach, fullLength) / 20);
-        }
-        context.closePath();
-        context.fillStyle = boid.color || ((_a = document.getElementById("color")) === null || _a === void 0 ? void 0 : _a.value);
-        context.fill();
-        context.stroke();
-        context.restore();
+function drawBoid(context, boid) {
+    if (!context)
+        return;
+    const { length, breadth } = boid.dimensions;
+    context.save();
+    context.translate(boid.location.x, boid.location.y);
+    context.rotate(boid.direction.angle);
+    context.beginPath();
+    if (selectedMode == Mode.Triangle) {
+        context.lineTo(-length / 2, -breadth / 2);
+        context.lineTo(length / 2, 0);
+        context.lineTo(-length / 2, breadth / 2);
     }
+    else if (selectedMode == Mode.Arrow) {
+        context.moveTo(0, 0);
+        context.lineTo(-length / 2, -breadth / 2);
+        context.lineTo(length / 2, 0);
+        context.lineTo(-length / 2, breadth / 2);
+    }
+    else if (selectedMode == Mode.Circle) {
+        context.ellipse(0, 0, length / 2, breadth / 2, 0, 0, 2 * Math.PI);
+    }
+    else {
+        context.roundRect(-length / 2, -breadth / 2, length, breadth, Math.min(length, breadth) / 20);
+    }
+    context.closePath();
+    context.fillStyle = boid.color || 'black';
+    context.fill();
+    context.stroke();
+    context.restore();
 }
-const select = document.querySelector(".select");
-const options = (select === null || select === void 0 ? void 0 : select.children) || [];
+const medium = document.getElementById("medium");
+let context;
 const previewCanvas = document.querySelector(".preview canvas");
 let contextP = previewCanvas === null || previewCanvas === void 0 ? void 0 : previewCanvas.getContext("2d");
+const select = document.querySelector(".select");
+const preview = document.querySelector(".preview");
+const options = (select === null || select === void 0 ? void 0 : select.children) || [];
 const data = {
     color: document.getElementById("color"),
     length: document.getElementById("length"),
-    reach: document.getElementById("reach")
+    breadth: document.getElementById("breadth"),
+    getDimesions() {
+        return { length: +data.length.value, breadth: +data.breadth.value };
+    },
+    getColor() {
+        return data.color.value;
+    },
+    updateBoid(b) {
+        b.dimensions = this.getDimesions();
+        b.color = this.getColor();
+    }
 };
-let selectedMode = "0";
-let previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), { external: false });
+var Mode;
+(function (Mode) {
+    Mode[Mode["Triangle"] = 0] = "Triangle";
+    Mode[Mode["Arrow"] = 1] = "Arrow";
+    Mode[Mode["Circle"] = 2] = "Circle";
+    Mode[Mode["Square"] = 3] = "Square";
+})(Mode || (Mode = {}));
+let selectedMode = Mode.Triangle;
+const previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), data.getDimesions(), { external: false });
 let curr;
+const cursorPos = { location: new Point(-1, -1), valid() {
+        return this.location.x >= 0 && this.location.y >= 0;
+    } };
+Object.keys(Boid.params).forEach(e => {
+    preview === null || preview === void 0 ? void 0 : preview.insertBefore(Boid.params[e].container, preview.lastElementChild);
+    Boid.params[e].initThumb();
+});
+medium.addEventListener("mousedown", (e) => {
+    var _a;
+    const clickedBoid = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.searchLocationBFS(cursorPos.location, 100);
+    if (!clickedBoid)
+        return;
+    data.updateBoid(clickedBoid);
+});
+medium.addEventListener("mousemove", updateCursor);
 for (const option of options) {
     option.addEventListener("click", () => {
+        var _a;
         curr === null || curr === void 0 ? void 0 : curr.classList.toggle("clicked");
         curr = option;
         curr === null || curr === void 0 ? void 0 : curr.classList.toggle("clicked");
-        selectedMode = (option === null || option === void 0 ? void 0 : option.getAttribute("mode")) || "0";
+        selectedMode = +((_a = option === null || option === void 0 ? void 0 : option.getAttribute("mode")) !== null && _a !== void 0 ? _a : 0);
         window.requestAnimationFrame(drawPreview);
     });
 }
@@ -146,12 +175,6 @@ document.querySelectorAll(".preview input").forEach(e => {
     var _a;
     start(+((_a = document.getElementById("count")) === null || _a === void 0 ? void 0 : _a.value));
 });
-function drawPreview() {
-    var _a, _b;
-    contextP === null || contextP === void 0 ? void 0 : contextP.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-    if (contextP)
-        drawBoid(contextP, previewBoid, 5 * +((_a = data.length) === null || _a === void 0 ? void 0 : _a.value), 5 * +((_b = data.reach) === null || _b === void 0 ? void 0 : _b.value));
-}
 const body = document.querySelector("body");
 (_b = document.querySelector(".mode")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
     body === null || body === void 0 ? void 0 : body.classList.toggle("dark");

@@ -10,7 +10,7 @@ export default class Boid {
     static BoidMap: Map<Boid, Vector> = new Map();
     static params: {[key: string]: Slider} = {
         speed: new Slider(0 , 20, {step: 0.5, initialValue: 5, name: "speed", unit: "unit(s) / frame"}),
-        range: new Slider(0, 1024, {step: 1, initialValue: 128, name: "range", unit: "unit(s)"}),
+        range: new Slider(0, 1024, {step: 1, initialValue: 256, name: "range", unit: "unit(s)"}),
         agility: new Slider(0, 2, {step: 0.01, initialValue: 0.1, name: "agility / acceleration"}),
         align: new Slider(0, 5, {step: 0.25, initialValue: 1, name: "align  power"}),
         avoid: new Slider(0, 5, {step: 0.25, initialValue: 1, name: "avoid  power"}),
@@ -21,7 +21,8 @@ export default class Boid {
     constructor(
         private _location: Point,
         private _direction: Vector,
-        options?: {color?: string, external?: false},
+        private _dimensions: {length: number, breadth: number},
+        options?: {length?: number, reach?: number, color?: string, external?: false},
         private _neighbors: Map<Boid, number> = new Map()) {
             this._color = options?.color ?? ''
             if (!(options?.external ?? true)) return
@@ -48,13 +49,56 @@ export default class Boid {
 
     findNeighbors(): void {
         const found: Map<Boid, number> = new Map()
+        const maxDistance = Boid.params.range.value        
         Boid.BoidMap.forEach((v, k) => {
             let dist = Point.distance(k._location, this._location)
-            if (k !== this && dist < Boid.params.range.value) {
+            if (k !== this && dist < maxDistance) {
                 found.set(k, dist)
             }
         })
         this._neighbors = found
+    }
+
+    findNeigborsBFS(): Boid[] {
+        console.time("b")
+        type BFSEntry = {x: number, y:number, type: 'o' | 'c' | 's' | 'e', dist: number, dir: [number, number]}
+        const queue: BFSEntry[] = [{x: Math.floor(this._location.x), y: Math.floor(this._location.y), type: 'o', dist: -1, dir: [0, 0]}]
+
+        let out = []
+        while(queue.length) {
+            let curr = queue.shift()
+            if (!curr || curr.dist >= Boid.params.range.value) continue
+            if (!Point.within([curr.x, curr.y], Boid.canvas.width, Boid.canvas.height)) continue
+            let check = Boid.canvas.canvasMap[curr.x][curr.y]
+            if (check) {
+                out.push(check)
+            }
+            curr.dist++
+            if (curr.type == 'e') {
+                continue
+            } else if (curr.type == 'c') {
+                curr.x += curr.dir[0]
+                curr.y += curr.dir[1]
+                for (let i = 1; i < curr.dist + 1; i++) {
+                    queue.push({x: curr.x - i * curr.dir[0], y: curr.y, type: 'e', dist: curr.dist, dir: curr.dir})
+                    queue.push({x: curr.x, y: curr.y - i * curr.dir[1], type: 'e', dist: curr.dist, dir: curr.dir})
+                }
+                queue.push({x: curr.x, y: curr.y, type: curr.type, dist: curr.dist, dir: curr.dir})
+            } else if (curr.type == 's') {
+                queue.push({x: curr.x + curr.dir[0], y: curr.y + curr.dir[1], type: curr.type, dist: curr.dist, dir: curr.dir})
+            } else {
+                queue.push({x: curr.x - 1, y: curr.y, type: 's', dist: curr.dist, dir: [-1, 0]})
+                queue.push({x: curr.x + 1, y: curr.y, type: 's', dist: curr.dist, dir: [1, 0]})
+                queue.push({x: curr.x, y: curr.y + 1, type: 's', dist: curr.dist, dir: [0, 1]})
+                queue.push({x: curr.x, y: curr.y - 1, type: 's', dist: curr.dist, dir: [0, -1]})
+                queue.push({x: curr.x - 1, y: curr.y - 1, type: 'c', dist: curr.dist, dir: [-1, -1]})
+                queue.push({x: curr.x - 1, y: curr.y + 1, type: 'c', dist: curr.dist, dir: [-1, 1]})
+                queue.push({x: curr.x + 1, y: curr.y - 1, type: 'c', dist: curr.dist, dir: [1, -1]})
+                queue.push({x: curr.x + 1, y: curr.y + 1, type: 'c', dist: curr.dist, dir: [1, 1]})
+            }
+        }
+        console.timeEnd("b")
+        return out
     }
 
     avoidNeighbors(): Vector | null {
@@ -95,6 +139,10 @@ export default class Boid {
         return new Vector(cursorLocation, this._location)
     }
 
+    get dimensions(): {length: number, breadth: number} {
+        return this._dimensions
+    }
+
     get location(): Point {
         return this._location
     }
@@ -109,6 +157,10 @@ export default class Boid {
 
     set color(newColor: string) {
         this._color = newColor
+    }
+
+    set dimensions(newDimensions: {length: number, breadth: number}) {
+        this._dimensions = {...newDimensions}
     }
 
     set direction(newDirection: Vector) {
