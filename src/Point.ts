@@ -27,7 +27,10 @@ export default class Point {
         return (new Vector(p1, p2)).magnitude
     }
 
-    static within(p: Point, maxX: number, maxY: number, minX = 0, minY = 0): boolean {
-        return minX <= p.x  && p.x <= maxX &&  minY <= p.y  && p.y <= maxY;
+    static within(p: Point | [number, number], maxX: number, maxY: number, minX = 0, minY = 0): boolean {
+        if (p instanceof Point) {
+            return minX <= p.x  && p.x <= maxX &&  minY <= p.y  && p.y <= maxY;
+        }
+        return minX <= p[0]  && p[0] <= maxX &&  minY <= p[1]  && p[1] <= maxY;
     }
 }

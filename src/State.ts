@@ -15,17 +15,19 @@ Object.keys(Boid.params).forEach(e => {
     Boid.params[e].initThumb()
 })
 
-document.addEventListener("mousemove", (e) => {
-    const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
-    if (Point.within(mouseLocation, medium.width, medium.height)) {
-        cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
-        cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
-        // const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
-    } else {
-        cursorPos.location.x = -1
-        cursorPos.location.y = -1
-    }
+medium.addEventListener("mousedown", (e) => {
+    const l = Boid.canvas?.searchLocationBFS(cursorPos.location, 100)
+    if (l) l.color = "red"
 })
+
+medium.addEventListener("mousemove", updateCursor)
+
+
+function updateCursor(e : MouseEvent) {
+    const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
+    cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
+    cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
+}
 
 function start(count: number) {
     if (medium) {
@@ -57,15 +59,14 @@ function draw() {
         drawBoid(context, k, +data.length?.value, +data.reach?.value)
         k.findNeighbors()
     })
-    let s = Boid.params.sharpness.value
+    let s = Boid.params.agility.value
     Boid.BoidMap.forEach((val, key, t) => {
-        let v0 = key.alignWithNeigbors().normalized
-        let v1 = key.avoidNeighbors().normalized
-        let v2 = key.flockWithNeigbor().normalized
+        let v0 = key.alignWithNeigbors()?.normalized
+        let v1 = key.avoidNeighbors()?.normalized
+        let v2 = key.flockWithNeigbor()?.normalized
         let v3;
         if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < Boid.params.range.value) {
             v3 = key.followCursor(cursorPos.location).normalized
-            // console.log(v3)
         }
         let og = key.direction.normalized
 
@@ -75,8 +76,18 @@ function draw() {
         let fl = Boid.params.flock.value
         let cu = Boid.params.cursor.value
         let dest = new Point(
-            og.x + al * s * v0.x + av * s * v1.x + fl * s * v2.x + cu * s * (v3?.x ?? 0),
-            og.y + al * s * v0.y + av * s * v1.y + fl * s * v2.y + cu * s * (v3?.y ?? 0)
+            
+            og.x 
+            + al * s * (v0?.x ?? 0) 
+            + av * s * (v1?.x ?? 0) 
+            + fl * s * (v2?.x ?? 0) 
+            + cu * s * (v3?.x ?? 0),
+            
+            og.y 
+            + al * s * (v0?.y ?? 0) 
+            + av * s * (v1?.y ?? 0) 
+            + fl * s * (v2?.y ?? 0) 
+            + cu * s * (v3?.y ?? 0)
         )
 
         t.set(key, new Vector(dest))
@@ -109,7 +120,7 @@ function drawBoid(context: CanvasRenderingContext2D, boid: Boid, fullLength: num
             context.roundRect(-fullLength / 2, -tailReach / 2, fullLength, tailReach, Math.min(tailReach, fullLength) / 20)
         }
         context.closePath();
-        context.fillStyle = (document.getElementById("color") as HTMLInputElement)?.value
+        context.fillStyle = boid.color || (document.getElementById("color") as HTMLInputElement)?.value
         context.fill();
         context.stroke();
         context.restore();
@@ -154,3 +165,9 @@ function drawPreview() {
     contextP?.clearRect(0 , 0, previewCanvas.width, previewCanvas.height)
     if (contextP) drawBoid(contextP, previewBoid, 5 * +data.length?.value, 5 * +data.reach?.value)
 }
+
+const body  = document.querySelector("body")
+document.querySelector(".mode")?.addEventListener("click", () => {
+    body?.classList.toggle("dark")
+    body?.classList.toggle("light")
+})

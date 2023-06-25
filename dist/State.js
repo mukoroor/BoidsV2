@@ -1,4 +1,4 @@
-var _a;
+var _a, _b;
 import Boid from "./Boid.js";
 import Vector from "./Vector.js";
 import Point from "./Point.js";
@@ -13,18 +13,18 @@ Object.keys(Boid.params).forEach(e => {
     preview === null || preview === void 0 ? void 0 : preview.insertBefore(Boid.params[e].container, preview.lastElementChild);
     Boid.params[e].initThumb();
 });
-document.addEventListener("mousemove", (e) => {
-    const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop);
-    if (Point.within(mouseLocation, medium.width, medium.height)) {
-        cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth;
-        cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight;
-        // const locationVal = Boid.canvas?.canvasMap[Math.floor(mouseLocation.x)][Math.floor(mouseLocation.y)]
-    }
-    else {
-        cursorPos.location.x = -1;
-        cursorPos.location.y = -1;
-    }
+medium.addEventListener("mousedown", (e) => {
+    var _a;
+    const l = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.searchLocationBFS(cursorPos.location, 100);
+    if (l)
+        l.color = "red";
 });
+medium.addEventListener("mousemove", updateCursor);
+function updateCursor(e) {
+    const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop);
+    cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth;
+    cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight;
+}
 function start(count) {
     if (medium) {
         Boid.BoidMap.clear();
@@ -52,23 +52,30 @@ function draw() {
             drawBoid(context, k, +((_a = data.length) === null || _a === void 0 ? void 0 : _a.value), +((_b = data.reach) === null || _b === void 0 ? void 0 : _b.value));
         k.findNeighbors();
     });
-    let s = Boid.params.sharpness.value;
+    let s = Boid.params.agility.value;
     Boid.BoidMap.forEach((val, key, t) => {
-        var _a, _b;
-        let v0 = key.alignWithNeigbors().normalized;
-        let v1 = key.avoidNeighbors().normalized;
-        let v2 = key.flockWithNeigbor().normalized;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        let v0 = (_a = key.alignWithNeigbors()) === null || _a === void 0 ? void 0 : _a.normalized;
+        let v1 = (_b = key.avoidNeighbors()) === null || _b === void 0 ? void 0 : _b.normalized;
+        let v2 = (_c = key.flockWithNeigbor()) === null || _c === void 0 ? void 0 : _c.normalized;
         let v3;
         if (cursorPos.valid() && Point.distance(cursorPos.location, key.location) < Boid.params.range.value) {
             v3 = key.followCursor(cursorPos.location).normalized;
-            // console.log(v3)
         }
         let og = key.direction.normalized;
         let al = Boid.params.align.value;
         let av = Boid.params.avoid.value;
         let fl = Boid.params.flock.value;
         let cu = Boid.params.cursor.value;
-        let dest = new Point(og.x + al * s * v0.x + av * s * v1.x + fl * s * v2.x + cu * s * ((_a = v3 === null || v3 === void 0 ? void 0 : v3.x) !== null && _a !== void 0 ? _a : 0), og.y + al * s * v0.y + av * s * v1.y + fl * s * v2.y + cu * s * ((_b = v3 === null || v3 === void 0 ? void 0 : v3.y) !== null && _b !== void 0 ? _b : 0));
+        let dest = new Point(og.x
+            + al * s * ((_d = v0 === null || v0 === void 0 ? void 0 : v0.x) !== null && _d !== void 0 ? _d : 0)
+            + av * s * ((_e = v1 === null || v1 === void 0 ? void 0 : v1.x) !== null && _e !== void 0 ? _e : 0)
+            + fl * s * ((_f = v2 === null || v2 === void 0 ? void 0 : v2.x) !== null && _f !== void 0 ? _f : 0)
+            + cu * s * ((_g = v3 === null || v3 === void 0 ? void 0 : v3.x) !== null && _g !== void 0 ? _g : 0), og.y
+            + al * s * ((_h = v0 === null || v0 === void 0 ? void 0 : v0.y) !== null && _h !== void 0 ? _h : 0)
+            + av * s * ((_j = v1 === null || v1 === void 0 ? void 0 : v1.y) !== null && _j !== void 0 ? _j : 0)
+            + fl * s * ((_k = v2 === null || v2 === void 0 ? void 0 : v2.y) !== null && _k !== void 0 ? _k : 0)
+            + cu * s * ((_l = v3 === null || v3 === void 0 ? void 0 : v3.y) !== null && _l !== void 0 ? _l : 0));
         t.set(key, new Vector(dest));
     });
     Boid.BoidMap.forEach((v, k) => {
@@ -102,7 +109,7 @@ function drawBoid(context, boid, fullLength, tailReach) {
             context.roundRect(-fullLength / 2, -tailReach / 2, fullLength, tailReach, Math.min(tailReach, fullLength) / 20);
         }
         context.closePath();
-        context.fillStyle = (_a = document.getElementById("color")) === null || _a === void 0 ? void 0 : _a.value;
+        context.fillStyle = boid.color || ((_a = document.getElementById("color")) === null || _a === void 0 ? void 0 : _a.value);
         context.fill();
         context.stroke();
         context.restore();
@@ -145,3 +152,8 @@ function drawPreview() {
     if (contextP)
         drawBoid(contextP, previewBoid, 5 * +((_a = data.length) === null || _a === void 0 ? void 0 : _a.value), 5 * +((_b = data.reach) === null || _b === void 0 ? void 0 : _b.value));
 }
+const body = document.querySelector("body");
+(_b = document.querySelector(".mode")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
+    body === null || body === void 0 ? void 0 : body.classList.toggle("dark");
+    body === null || body === void 0 ? void 0 : body.classList.toggle("light");
+});

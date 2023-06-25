@@ -8,7 +8,30 @@
     <link href="medium.css" rel="stylesheet">
     <script src="./dist/State.js" type="module"></script>
 </head>
-<body>
+<body class="dark">
+    <div class="functionBar">
+        <div class="mode">
+            <svg version="1.1" viewBox="0 0 106 106" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(-13 -12)">
+                 <circle cx="65" cy="65" r="25"/>
+                 <g transform="translate(5.4 7)" stroke-width="0">
+                  <rect x="93" y="55" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(30)" x="114" y="17" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(60)" x="113" y="-27" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(90)" x="91" y="-64" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(120)" x="53" y="-85" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(150)" x="9.8" y="-84" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="scale(-1)" x="-28" y="-62" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(210)" x="-49" y="-24" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(240)" x="-48" y="19" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(-90)" x="-26" y="56" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(-60)" x="12" y="77" width="15" height="7.5" ry="3.8"/>
+                  <rect transform="rotate(-30)" x="55" y="77" width="15" height="7.5" ry="3.8"/>
+                 </g>
+                </g>
+               </svg>
+        </div>
+    </div>
     <div class="preview">
         <canvas id="pred" height="1080" width="1080"></canvas>
         <div class="select">
@@ -25,7 +48,7 @@
             <label for="reach">reach</label>
             <input id="reach" type="number" min="5" max="200" value="50">
             <label for="count">count</label>
-            <input id="count" type="number" min="5" max="600" value="200">
+            <input id="count" type="number" min="5" max="1000" value="200">
         </div>
         <button id="submit">submit</button>
     </div>
