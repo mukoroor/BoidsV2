@@ -12,7 +12,7 @@ export default class Slider {
         const track = document.createElement("div");
         track.append(thumb);
         const value = document.createElement("div");
-        const label = document.createElement("div");
+        const label = document.createElement("label");
         label.textContent = (_b = options === null || options === void 0 ? void 0 : options.name) !== null && _b !== void 0 ? _b : '';
         this._container.append(track, value, label);
         thumb.classList.add("thumb");

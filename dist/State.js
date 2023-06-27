@@ -88,13 +88,18 @@ function draw() {
     pausable = true;
     currFrame = window.requestAnimationFrame(draw);
 }
-function drawStatic() {
+function drawStatic(boidsSet) {
     pausable = false;
+    context === null || context === void 0 ? void 0 : context.clearRect(0, 0, (medium === null || medium === void 0 ? void 0 : medium.width) || 0, (medium === null || medium === void 0 ? void 0 : medium.height) || 0);
     Boid.BoidMap.forEach((v, k) => {
-        if (context)
-            drawBoid(context, k);
+        if (!context)
+            return;
+        if (boidsSet.has(k))
+            data.updateBoid(k);
+        drawBoid(context, k);
     });
     pausable = true;
+    pauseFrame = window.requestAnimationFrame(() => drawStatic(boidsSet));
 }
 function drawBoid(context, boid) {
     if (!context)
@@ -135,8 +140,9 @@ const medium = document.getElementById("medium");
 let context;
 const previewCanvas = document.querySelector(".preview canvas");
 let contextP = previewCanvas === null || previewCanvas === void 0 ? void 0 : previewCanvas.getContext("2d");
-let currFrame = 0;
 let pausePlay;
+let currFrame = 0;
+let pauseFrame = 0;
 let pausable = true;
 const select = document.querySelector(".select");
 const preview = document.querySelector(".preview");
@@ -197,31 +203,20 @@ Object.keys(Boid.params).forEach(e => {
 function boidClick() {
     let clicked = false;
     const clickedBoids = new Set();
-    // const outlineCircle = (b: Boid, mode: 'erase' | 'draw') => {
-    //     if (!context) return
-    //     context.beginPath()
-    //     context.arc(b.location.x, b.location.y, 1.25 * Math.max(b.dimensions.length, b.dimensions.breadth),0, Math.PI * 2)
-    //     context.closePath()
-    //     context.setLineDash([20, 10])
-    //     context.lineWidth = 10
-    //     if (mode === 'erase') {
-    //         context.globalCompositeOperation = 'destination-out';
-    //     }
-    //     context.stroke()
-    //     context.globalCompositeOperation = 'source-over';
-    // }
     return () => {
         var _a;
         const b = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.searchLocationBFS(cursorPos.location, 100);
         if (clicked) {
-            clickedBoids.forEach(e => data.updateBoid(e));
             clickedBoids.clear();
+            window.cancelAnimationFrame(pauseFrame);
             currFrame = window.requestAnimationFrame(draw);
         }
         else {
+            if (!b || !(clickedBoids.size + 1))
+                return;
+            clickedBoids.add(b);
             window.cancelAnimationFrame(currFrame);
-            if (b)
-                clickedBoids.add(b);
+            pauseFrame = window.requestAnimationFrame(() => drawStatic(clickedBoids));
         }
         clicked = !clicked;
     };

@@ -17,7 +17,7 @@ export default class Slider {
         track.append(thumb)
 
         const value = document.createElement("div")
-        const label = document.createElement("div")
+        const label = document.createElement("label")
         label.textContent = options?.name ?? ''
 
         this._container.append(track, value, label)
