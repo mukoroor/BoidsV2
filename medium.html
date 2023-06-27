@@ -8,7 +8,7 @@
     <link href="medium.css" rel="stylesheet">
     <script src="./dist/State.js" type="module"></script>
 </head>
-<body class="dark">
+<body class="light">
     <div class="functionBar">
         <div class="mode">
             <svg version="1.1" viewBox="0 0 106 106" xmlns="http://www.w3.org/2000/svg">
@@ -33,22 +33,33 @@
         </div>
     </div>
     <div class="preview">
-        <canvas id="pred" height="1080" width="1080"></canvas>
-        <div class="select">
-            <button id="arrow" mode="0">Triangle</button>
-            <button id="triangle" mode="1">Arrow</button>
-            <button id="circle" mode="2">Circle</button>
-            <button id="circle" mode="3">Square</button>
+        <canvas id="previewCanvas" width='2160' height='2160'></canvas>
+        <div>
+            <h4>SHAPE</h4>
+            <div class="select">
+                <button id="arrow" shape="0">Triangle</button>
+                <button id="triangle" shape="1">Arrow</button>
+                <button id="circle" shape="2">Circle</button>
+                <button id="circle" shape="3">Square</button>
+            </div>
         </div>
-        <div class="data">
-            <label for="color">color</label>
-            <input id="color" type="color">
-            <label for="length">length</label>
-            <input id="length" type="number" min="5" max="200" value="100">
-            <label for="breadth">breadth</label>
-            <input id="breadth" type="number" min="5" max="200" value="50">
-            <label for="count">count</label>
-            <input id="count" type="number" min="5" max="1000" value="200">
+        <div>
+            <h4>DATA</h4>
+            <div class="data">
+                <label for="color">color</label>
+                <input id="color" type="color">
+                <label for="count">count</label>
+                <input id="count" type="number" min="5" max="1000" value="200">
+                <label for="length">length</label>
+                <input id="length" type="number" min="5" max="250" value="100">
+                <label for="breadth">breadth</label>
+                <input id="breadth" type="number" min="5" max="250" value="50">
+                <label for="dataMode">Global-Data-Coupling</label>
+                <input id="dataMode" type="checkbox">
+            </div>
+        </div>
+        <div>
+            <h4>PARAMETERS</h4>
         </div>
         <button id="submit">submit</button>
     </div>

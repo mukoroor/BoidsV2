@@ -23,6 +23,10 @@ export default class Point {
         this._y = newY
     }
 
+    toString(): string {
+        return this._x + ", " + this._y
+    }
+
     static distance(p1: Point, p2: Point): number {
         return (new Vector(p1, p2)).magnitude
     }

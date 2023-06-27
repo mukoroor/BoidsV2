@@ -1,5 +1,5 @@
 import Point from "./Point.js";
-export default class Canvas {
+class Canvas {
     constructor(_width, _height) {
         this._width = _width;
         this._height = _height;
@@ -63,3 +63,5 @@ export default class Canvas {
         return this._height;
     }
 }
+Canvas.offCanvasBuffer = 100;
+export default Canvas;

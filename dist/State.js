@@ -12,6 +12,17 @@ function drawPreview() {
     if (!contextP)
         return;
     contextP.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    contextP.save();
+    contextP.translate(previewBoid.location.x, previewBoid.location.y);
+    contextP.rotate(-Math.PI / 2);
+    contextP.beginPath();
+    const radian = (Boid.params.cone.value * Math.PI / 180);
+    contextP.arc(0, 0, Boid.params.range.value, -radian, radian);
+    contextP.lineTo(0, 0);
+    contextP.closePath();
+    contextP.fillStyle = "rgba(100, 150, 255, 0.25)";
+    contextP.fill();
+    contextP.restore();
     data.updateBoid(previewBoid);
     drawBoid(contextP, previewBoid);
 }
@@ -28,22 +39,19 @@ function start(count) {
         const loc = new Point(Math.random() * ((medium === null || medium === void 0 ? void 0 : medium.width) || 0), Math.random() * ((medium === null || medium === void 0 ? void 0 : medium.height) || 0));
         const d = new Point(Math.random() * 2 - 1, Math.random() * 2 - 1);
         const direc = new Vector(d);
-        const boid = new Boid(loc, direc, { length, breadth });
-        boid.color = color;
+        new Boid(loc, direc, { length, breadth }, color).addToCanvas();
     }
-    if (medium === null || medium === void 0 ? void 0 : medium.getContext("2d")) {
-        context = medium.getContext("2d");
-        if (context)
-            window.requestAnimationFrame(draw);
+    pausePlay = boidClick();
+    if (context = medium.getContext("2d")) {
+        window.cancelAnimationFrame(currFrame);
+        currFrame = window.requestAnimationFrame(draw);
     }
 }
 function draw() {
+    pausable = false;
     context === null || context === void 0 ? void 0 : context.clearRect(0, 0, (medium === null || medium === void 0 ? void 0 : medium.width) || 0, (medium === null || medium === void 0 ? void 0 : medium.height) || 0);
     Boid.BoidMap.forEach((v, k) => {
-        if (context)
-            drawBoid(context, k);
         k.findNeighbors();
-        // k.findNeigborsBFS()
     });
     let s = Boid.params.agility.value;
     Boid.BoidMap.forEach((val, key, t) => {
@@ -74,44 +82,62 @@ function draw() {
     Boid.BoidMap.forEach((v, k) => {
         k.direction = v;
         k.incrementPositon();
+        if (context)
+            drawBoid(context, k);
     });
-    window.requestAnimationFrame(draw);
+    pausable = true;
+    currFrame = window.requestAnimationFrame(draw);
+}
+function drawStatic() {
+    pausable = false;
+    Boid.BoidMap.forEach((v, k) => {
+        if (context)
+            drawBoid(context, k);
+    });
+    pausable = true;
 }
 function drawBoid(context, boid) {
     if (!context)
         return;
-    const { length, breadth } = boid.dimensions;
+    if (currMode == MODE.GLOBAL) {
+        data.updateBoid(boid);
+    }
+    let { length, breadth } = boid.dimensions;
+    length /= 2;
+    breadth /= 2;
     context.save();
     context.translate(boid.location.x, boid.location.y);
     context.rotate(boid.direction.angle);
     context.beginPath();
-    if (selectedMode == Mode.Triangle) {
-        context.lineTo(-length / 2, -breadth / 2);
-        context.lineTo(length / 2, 0);
-        context.lineTo(-length / 2, breadth / 2);
+    if (selectedShape == SHAPE.TRIANGLE) {
+        context.lineTo(-length, -breadth);
+        context.lineTo(length, 0);
+        context.lineTo(-length, breadth);
     }
-    else if (selectedMode == Mode.Arrow) {
+    else if (selectedShape == SHAPE.ARROW) {
         context.moveTo(0, 0);
-        context.lineTo(-length / 2, -breadth / 2);
-        context.lineTo(length / 2, 0);
-        context.lineTo(-length / 2, breadth / 2);
+        context.lineTo(-length, -breadth);
+        context.lineTo(length, 0);
+        context.lineTo(-length, breadth);
     }
-    else if (selectedMode == Mode.Circle) {
-        context.ellipse(0, 0, length / 2, breadth / 2, 0, 0, 2 * Math.PI);
+    else if (selectedShape == SHAPE.CIRCLE) {
+        context.ellipse(0, 0, length, breadth, 0, 0, 2 * Math.PI);
     }
     else {
-        context.roundRect(-length / 2, -breadth / 2, length, breadth, Math.min(length, breadth) / 20);
+        context.roundRect(-length, -breadth, length * 2, breadth * 2, Math.min(length, breadth) / 10);
     }
     context.closePath();
-    context.fillStyle = boid.color || 'black';
+    context.fillStyle = boid.color;
     context.fill();
-    context.stroke();
     context.restore();
 }
 const medium = document.getElementById("medium");
 let context;
 const previewCanvas = document.querySelector(".preview canvas");
 let contextP = previewCanvas === null || previewCanvas === void 0 ? void 0 : previewCanvas.getContext("2d");
+let currFrame = 0;
+let pausePlay;
+let pausable = true;
 const select = document.querySelector(".select");
 const preview = document.querySelector(".preview");
 const options = (select === null || select === void 0 ? void 0 : select.children) || [];
@@ -130,47 +156,107 @@ const data = {
         b.color = this.getColor();
     }
 };
-var Mode;
-(function (Mode) {
-    Mode[Mode["Triangle"] = 0] = "Triangle";
-    Mode[Mode["Arrow"] = 1] = "Arrow";
-    Mode[Mode["Circle"] = 2] = "Circle";
-    Mode[Mode["Square"] = 3] = "Square";
-})(Mode || (Mode = {}));
-let selectedMode = Mode.Triangle;
-const previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), data.getDimesions(), { external: false });
+var SHAPE;
+(function (SHAPE) {
+    SHAPE[SHAPE["TRIANGLE"] = 0] = "TRIANGLE";
+    SHAPE[SHAPE["ARROW"] = 1] = "ARROW";
+    SHAPE[SHAPE["CIRCLE"] = 2] = "CIRCLE";
+    SHAPE[SHAPE["SQUARE"] = 3] = "SQUARE";
+})(SHAPE || (SHAPE = {}));
+let selectedShape = SHAPE.TRIANGLE;
+var MODE;
+(function (MODE) {
+    MODE[MODE["GLOBAL"] = 0] = "GLOBAL";
+    MODE[MODE["LOCAL"] = 1] = "LOCAL";
+})(MODE || (MODE = {}));
+let currMode = MODE.LOCAL;
+const modeToggle = document.getElementById("dataMode");
+modeToggle === null || modeToggle === void 0 ? void 0 : modeToggle.addEventListener("input", () => {
+    if (modeToggle.checked)
+        currMode = MODE.GLOBAL;
+    else
+        currMode = MODE.LOCAL;
+});
+const previewBoid = new Boid(new Point(previewCanvas.width / 2, previewCanvas.height / 2), new Vector(new Point(0, -1)), data.getDimesions(), "black");
 let curr;
-const cursorPos = { location: new Point(-1, -1), valid() {
+const cursorPos = {
+    location: new Point(-1, -1),
+    valid() {
         return this.location.x >= 0 && this.location.y >= 0;
-    } };
+    },
+    reset() {
+        this.location = new Point(-1, -1);
+    }
+};
 Object.keys(Boid.params).forEach(e => {
-    preview === null || preview === void 0 ? void 0 : preview.insertBefore(Boid.params[e].container, preview.lastElementChild);
+    var _a;
+    if ((_a = preview === null || preview === void 0 ? void 0 : preview.lastElementChild) === null || _a === void 0 ? void 0 : _a.previousElementSibling)
+        preview.lastElementChild.previousElementSibling.append(Boid.params[e].container);
     Boid.params[e].initThumb();
 });
-medium.addEventListener("mousedown", (e) => {
-    var _a;
-    const clickedBoid = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.searchLocationBFS(cursorPos.location, 100);
-    if (!clickedBoid)
-        return;
-    data.updateBoid(clickedBoid);
+function boidClick() {
+    let clicked = false;
+    const clickedBoids = new Set();
+    // const outlineCircle = (b: Boid, mode: 'erase' | 'draw') => {
+    //     if (!context) return
+    //     context.beginPath()
+    //     context.arc(b.location.x, b.location.y, 1.25 * Math.max(b.dimensions.length, b.dimensions.breadth),0, Math.PI * 2)
+    //     context.closePath()
+    //     context.setLineDash([20, 10])
+    //     context.lineWidth = 10
+    //     if (mode === 'erase') {
+    //         context.globalCompositeOperation = 'destination-out';
+    //     }
+    //     context.stroke()
+    //     context.globalCompositeOperation = 'source-over';
+    // }
+    return () => {
+        var _a;
+        const b = (_a = Boid.canvas) === null || _a === void 0 ? void 0 : _a.searchLocationBFS(cursorPos.location, 100);
+        if (clicked) {
+            clickedBoids.forEach(e => data.updateBoid(e));
+            clickedBoids.clear();
+            currFrame = window.requestAnimationFrame(draw);
+        }
+        else {
+            window.cancelAnimationFrame(currFrame);
+            if (b)
+                clickedBoids.add(b);
+        }
+        clicked = !clicked;
+    };
+}
+document.addEventListener("keydown", (e) => { if (e.key == ' ')
+    pausePlay(); });
+medium.addEventListener("mousedown", () => {
+    new Promise(res => {
+        while (!pausable) {
+            continue;
+        }
+        res(null);
+    }).then(() => {
+        pausePlay();
+    });
 });
 medium.addEventListener("mousemove", updateCursor);
+medium.addEventListener("mouseout", () => cursorPos.reset());
 for (const option of options) {
     option.addEventListener("click", () => {
         var _a;
         curr === null || curr === void 0 ? void 0 : curr.classList.toggle("clicked");
         curr = option;
         curr === null || curr === void 0 ? void 0 : curr.classList.toggle("clicked");
-        selectedMode = +((_a = option === null || option === void 0 ? void 0 : option.getAttribute("mode")) !== null && _a !== void 0 ? _a : 0);
+        selectedShape = +((_a = option === null || option === void 0 ? void 0 : option.getAttribute("shape")) !== null && _a !== void 0 ? _a : 0);
         window.requestAnimationFrame(drawPreview);
     });
 }
-(select === null || select === void 0 ? void 0 : select.firstElementChild).click();
+document.addEventListener("sliderValChange", () => window.requestAnimationFrame(drawPreview));
 document.querySelectorAll(".preview input").forEach(e => {
     e.addEventListener("input", () => {
         window.requestAnimationFrame(drawPreview);
     });
 });
+(select === null || select === void 0 ? void 0 : select.firstElementChild).click();
 (_a = document.getElementById("submit")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
     var _a;
     start(+((_a = document.getElementById("count")) === null || _a === void 0 ? void 0 : _a.value));

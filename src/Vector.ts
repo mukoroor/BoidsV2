@@ -32,4 +32,8 @@ export default class Vector {
         const mag = this.magnitude
         return {x: this.xDisplacement / mag || 0, y: this.yDisplacement / mag || 0};
     }
+
+    toString(): string {
+        return this.xDisplacement + ", " + this.yDisplacement
+    }
 }

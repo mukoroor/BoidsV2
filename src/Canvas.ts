@@ -3,6 +3,7 @@ import Point from "./Point.js";
 
 export default class Canvas {
     private _canvasMap: (Boid | null)[][]
+    static offCanvasBuffer = 100
 
     constructor(private _width: number, private _height: number) {
         this._canvasMap = Array.from({ length: this.width }, () =>

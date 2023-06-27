@@ -46,6 +46,7 @@ export default class Slider {
     updateValue(newVal: number): void {
         this._value = newVal >= this._min && newVal <= this._max ? newVal : newVal > this.value ? this._max : this._min
         this._data.value.textContent = this._value.toFixed(2) + ' ' + (this._unit || '')
+        document.dispatchEvent(new Event("sliderValChange"))
     }
 
     dragStart(e: MouseEvent): void {

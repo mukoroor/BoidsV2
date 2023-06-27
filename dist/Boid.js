@@ -1,29 +1,35 @@
 import Vector from "./Vector.js";
 import Point from "./Point.js";
+import Canvas from "./Canvas.js";
 import Slider from "./Slider.js";
 class Boid {
-    constructor(_location, _direction, _dimensions, options, _neighbors = new Map()) {
-        var _a, _b;
+    constructor(_location, _direction, _dimensions, color) {
         this._location = _location;
         this._direction = _direction;
         this._dimensions = _dimensions;
-        this._neighbors = _neighbors;
-        this._color = (_a = options === null || options === void 0 ? void 0 : options.color) !== null && _a !== void 0 ? _a : '';
-        if (!((_b = options === null || options === void 0 ? void 0 : options.external) !== null && _b !== void 0 ? _b : true))
-            return;
+        this._color = 'black';
+        this._name = 'N/A';
+        this._neighbors = new Map();
+        if (color)
+            this._color = color;
+    }
+    addToCanvas() {
         Boid.BoidMap.set(this, new Vector());
         Boid.canvas.setBoidLocation(this);
     }
     incrementPositon() {
         const normal = this._direction.normalized;
         const speed = Boid.params.speed.value;
-        const canvasWidth = Boid.canvas.width;
-        const canvasHeight = Boid.canvas.height;
+        let canvasWidth = Boid.canvas.width;
+        let canvasHeight = Boid.canvas.height;
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.clearBoidLocation(this);
         }
-        this._location.x = ((this._location.x + speed * normal.x + 100) % (canvasWidth + 200) + (canvasWidth + 200)) % (canvasWidth + 200) - 100;
-        this._location.y = ((this._location.y + speed * normal.y + 100) % (canvasHeight + 200) + (canvasHeight + 200)) % (canvasHeight + 200) - 100;
+        const offset = Canvas.offCanvasBuffer;
+        canvasHeight += offset;
+        canvasWidth += offset;
+        this._location.x = ((this._location.x + speed * normal.x + offset) % (canvasWidth) + (canvasWidth)) % (canvasWidth) - offset;
+        this._location.y = ((this._location.y + speed * normal.y + offset) % (canvasHeight) + (canvasHeight)) % (canvasHeight) - offset;
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.setBoidLocation(this);
         }
@@ -32,15 +38,17 @@ class Boid {
         const found = new Map();
         const maxDistance = Boid.params.range.value;
         Boid.BoidMap.forEach((v, k) => {
+            if (k === this)
+                return;
+            const relativeAngle = k.direction.angle - new Vector(k.location, this.location).angle;
             let dist = Point.distance(k._location, this._location);
-            if (k !== this && dist < maxDistance) {
+            if (dist < maxDistance && Math.abs(relativeAngle) <= (Boid.params.cone.value * Math.PI / 180)) {
                 found.set(k, dist);
             }
         });
         this._neighbors = found;
     }
     findNeigborsBFS() {
-        console.time("b");
         const queue = [{ x: Math.floor(this._location.x), y: Math.floor(this._location.y), type: 'o', dist: -1, dir: [0, 0] }];
         let out = [];
         while (queue.length) {
@@ -80,7 +88,6 @@ class Boid {
                 queue.push({ x: curr.x + 1, y: curr.y + 1, type: 'c', dist: curr.dist, dir: [1, 1] });
             }
         }
-        console.timeEnd("b");
         return out;
     }
     avoidNeighbors() {
@@ -132,8 +139,14 @@ class Boid {
     get color() {
         return this._color;
     }
+    get name() {
+        return this._name;
+    }
     set color(newColor) {
         this._color = newColor;
+    }
+    set name(newName) {
+        this._name = newName;
     }
     set dimensions(newDimensions) {
         this._dimensions = Object.assign({}, newDimensions);
@@ -141,15 +154,19 @@ class Boid {
     set direction(newDirection) {
         this._direction = newDirection;
     }
+    toString() {
+        return `Name: ${this._name}\nColor: ${this._color}\nLocation: ${this._location.toString()}\nDirection: ${this._direction.toString()}\nDimesions: ${this._dimensions.length}, ${this._dimensions.breadth}`;
+    }
 }
 Boid.BoidMap = new Map();
 Boid.params = {
     speed: new Slider(0, 20, { step: 0.5, initialValue: 5, name: "speed", unit: "unit(s) / frame" }),
     range: new Slider(0, 1024, { step: 1, initialValue: 256, name: "range", unit: "unit(s)" }),
+    cone: new Slider(0, 180, { step: 1, initialValue: 20, name: "visual cone", unit: "°" }),
     agility: new Slider(0, 2, { step: 0.01, initialValue: 0.1, name: "agility / acceleration" }),
-    align: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "align  power" }),
-    avoid: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "avoid  power" }),
-    flock: new Slider(0, 5, { step: 0.25, initialValue: 1, name: "flock  power" }),
-    cursor: new Slider(0, 10, { step: 0.25, initialValue: 5, name: "cursor power" })
+    align: new Slider(0, 5, { step: 0.05, initialValue: 1, name: "align  power" }),
+    avoid: new Slider(0, 5, { step: 0.05, initialValue: 1, name: "avoid  power" }),
+    flock: new Slider(0, 5, { step: 0.05, initialValue: 1, name: "flock  power" }),
+    cursor: new Slider(0, 10, { step: 0.05, initialValue: 5, name: "cursor power" })
 };
 export default Boid;

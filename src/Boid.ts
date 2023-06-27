@@ -4,43 +4,49 @@ import Canvas from "./Canvas.js";
 import Slider from "./Slider.js";
 
 export default class Boid {
-    
-    private _color: string
+    private _color: string = 'black'
+    private _name: string = 'N/A'
+    private _neighbors: Map<Boid, number> = new Map()
     static canvas: Canvas;
     static BoidMap: Map<Boid, Vector> = new Map();
     static params: {[key: string]: Slider} = {
         speed: new Slider(0 , 20, {step: 0.5, initialValue: 5, name: "speed", unit: "unit(s) / frame"}),
         range: new Slider(0, 1024, {step: 1, initialValue: 256, name: "range", unit: "unit(s)"}),
+        cone: new Slider(0, 180, {step: 1, initialValue: 20, name: "visual cone", unit: "°"}),
         agility: new Slider(0, 2, {step: 0.01, initialValue: 0.1, name: "agility / acceleration"}),
-        align: new Slider(0, 5, {step: 0.25, initialValue: 1, name: "align  power"}),
-        avoid: new Slider(0, 5, {step: 0.25, initialValue: 1, name: "avoid  power"}),
-        flock: new Slider(0, 5, {step: 0.25, initialValue: 1, name: "flock  power"}),
-        cursor: new Slider(0, 10, {step: 0.25, initialValue: 5, name: "cursor power"})
+        align: new Slider(0, 5, {step: 0.05, initialValue: 1, name: "align  power"}),
+        avoid: new Slider(0, 5, {step: 0.05, initialValue: 1, name: "avoid  power"}),
+        flock: new Slider(0, 5, {step: 0.05, initialValue: 1, name: "flock  power"}),
+        cursor: new Slider(0, 10, {step: 0.05, initialValue: 5, name: "cursor power"})
     }
 
     constructor(
         private _location: Point,
         private _direction: Vector,
         private _dimensions: {length: number, breadth: number},
-        options?: {length?: number, reach?: number, color?: string, external?: false},
-        private _neighbors: Map<Boid, number> = new Map()) {
-            this._color = options?.color ?? ''
-            if (!(options?.external ?? true)) return
-            Boid.BoidMap.set(this, new Vector())
-            Boid.canvas.setBoidLocation(this)
+        color?: string) {
+            if (color) this._color = color
+    }
+
+    addToCanvas() {
+        Boid.BoidMap.set(this, new Vector())
+        Boid.canvas.setBoidLocation(this)
     }
 
     
     incrementPositon(): void {
         const normal = this._direction.normalized;
         const speed = Boid.params.speed.value;
-        const canvasWidth = Boid.canvas.width;
-        const canvasHeight = Boid.canvas.height;
+        let canvasWidth = Boid.canvas.width;
+        let canvasHeight = Boid.canvas.height;
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.clearBoidLocation(this)
         }
-        this._location.x = ((this._location.x + speed * normal.x + 100) % (canvasWidth + 200) + (canvasWidth + 200)) % (canvasWidth + 200) - 100;
-        this._location.y = ((this._location.y + speed * normal.y + 100) % (canvasHeight + 200) + (canvasHeight + 200)) % (canvasHeight + 200) - 100;
+        const offset = Canvas.offCanvasBuffer
+        canvasHeight += offset
+        canvasWidth += offset
+        this._location.x = ((this._location.x + speed * normal.x + offset) % (canvasWidth) + (canvasWidth)) % (canvasWidth) - offset;
+        this._location.y = ((this._location.y + speed * normal.y + offset) % (canvasHeight) + (canvasHeight)) % (canvasHeight) - offset;
 
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.setBoidLocation(this)
@@ -49,10 +55,12 @@ export default class Boid {
 
     findNeighbors(): void {
         const found: Map<Boid, number> = new Map()
-        const maxDistance = Boid.params.range.value        
+        const maxDistance = Boid.params.range.value
         Boid.BoidMap.forEach((v, k) => {
+            if (k === this) return
+            const relativeAngle = k.direction.angle - new Vector(k.location, this.location).angle
             let dist = Point.distance(k._location, this._location)
-            if (k !== this && dist < maxDistance) {
+        if (dist < maxDistance && Math.abs(relativeAngle) <= (Boid.params.cone.value * Math.PI / 180) ) {
                 found.set(k, dist)
             }
         })
@@ -60,7 +68,6 @@ export default class Boid {
     }
 
     findNeigborsBFS(): Boid[] {
-        console.time("b")
         type BFSEntry = {x: number, y:number, type: 'o' | 'c' | 's' | 'e', dist: number, dir: [number, number]}
         const queue: BFSEntry[] = [{x: Math.floor(this._location.x), y: Math.floor(this._location.y), type: 'o', dist: -1, dir: [0, 0]}]
 
@@ -97,7 +104,6 @@ export default class Boid {
                 queue.push({x: curr.x + 1, y: curr.y + 1, type: 'c', dist: curr.dist, dir: [1, 1]})
             }
         }
-        console.timeEnd("b")
         return out
     }
 
@@ -155,8 +161,16 @@ export default class Boid {
         return this._color
     }
 
+    get name(): string {
+        return this._name
+    }
+
     set color(newColor: string) {
         this._color = newColor
+    }
+
+    set name(newName: string) {
+        this._name = newName
     }
 
     set dimensions(newDimensions: {length: number, breadth: number}) {
@@ -165,5 +179,9 @@ export default class Boid {
 
     set direction(newDirection: Vector) {
         this._direction = newDirection
+    }
+
+    toString(): string {
+        return `Name: ${this._name}\nColor: ${this._color}\nLocation: ${this._location.toString()}\nDirection: ${this._direction.toString()}\nDimesions: ${this._dimensions.length}, ${this._dimensions.breadth}`
     }
 }

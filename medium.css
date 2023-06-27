@@ -84,6 +84,8 @@ body {
 .preview {
     display: grid;
     align-items: stretch;
+    grid-auto-rows: min-content;
+    /* justify-content: start; */
     margin: 1vmin 0;
     gap: 1vmin;
 }
@@ -93,10 +95,18 @@ body {
     gap: 0.5lh 0;
     align-items: center;
     text-transform: capitalize;
-    grid-template-columns: 8ch 1fr;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 1.5lh;
 }
 
-.preview .data input[type="number"] {
+.preview .data label:last-of-type {
+    grid-column: span 3;
+}
+
+.preview .data input {
+    align-self: center;
+    justify-self: last baseline;
+    margin-right: 1ch;
     font-size: 1em;
 }
 
@@ -104,9 +114,8 @@ button {
     user-select: none;
     border: none;
     background-color: rgba(var(--base), 0.1);
-    /* padding: 0.25lh 0; */
     text-transform: uppercase;
-    font-size: 1.25em;
+    font-size: 1.1em;
     border-radius: 0.2lh;
     color: inherit;
     transition: background-color;
@@ -120,9 +129,9 @@ button:active {
     background-color: rgba(var(--base), 0.3);
 }
 
-#pred {
+#previewCanvas {
     width: 100%;
-    aspect-ratio: 1;
+    /* aspect-ratio: 1; */
 }
 
 .select {
@@ -162,11 +171,13 @@ input[type="color"] {
     background-color: transparent;
     border: none;
     height: 5ex;
-    width: 100%;
+    width: 75%;
+    height: 90%;
 }
 
 input[type="color"]::-webkit-color-swatch {
-    box-shadow: 0 0 2ex rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 1ex rgba(0, 0, 0, 0.3);
+    outline: 1px solid rgba(var(--base), 0.5);
     border: none;
     width: 100%;
     border-radius: 0.5ex;
@@ -207,4 +218,10 @@ input[type="number"] {
 circle {
     outline: 3px solid rgba(218, 165, 32, 0.5);
     border-radius: 50%;
+}
+
+h4 {
+    font-weight: 600;
+    /* font-size: 1em; */
+    color: #e81741;
 }

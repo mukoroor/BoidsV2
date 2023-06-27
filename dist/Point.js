@@ -16,6 +16,9 @@ export default class Point {
     set y(newY) {
         this._y = newY;
     }
+    toString() {
+        return this._x + ", " + this._y;
+    }
     static distance(p1, p2) {
         return (new Vector(p1, p2)).magnitude;
     }
