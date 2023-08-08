@@ -134,7 +134,7 @@ function drawBoid(context: CanvasRenderingContext2D, boid: Boid) {
         context.lineTo(-length, -breadth);
         context.lineTo(length, 0);
         context.lineTo(-length, breadth);
-    } else if (selectedShape == SHAPE.CIRCLE) {
+    } else if (selectedShape == SHAPE.ELLIPSE) {
         context.ellipse(0, 0, length, breadth, 0, 0, 2 * Math.PI);
     } else {
         context.roundRect(-length, -breadth, length * 2, breadth * 2, Math.min(length, breadth) / 10)
@@ -181,7 +181,7 @@ const data = {
     }
 }
 
-enum SHAPE {TRIANGLE, ARROW, CIRCLE, SQUARE}
+enum SHAPE {TRIANGLE, ARROW, ELLIPSE, SQUARE}
 let selectedShape = SHAPE.TRIANGLE
 
 enum MODE {GLOBAL, LOCAL}
