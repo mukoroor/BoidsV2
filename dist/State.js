@@ -48,12 +48,16 @@ function start(count) {
     }
 }
 function draw() {
+    console.time('overall');
     pausable = false;
     context === null || context === void 0 ? void 0 : context.clearRect(0, 0, (medium === null || medium === void 0 ? void 0 : medium.width) || 0, (medium === null || medium === void 0 ? void 0 : medium.height) || 0);
+    console.time('neigh');
     Boid.BoidMap.forEach((v, k) => {
         k.findNeighbors();
     });
+    console.timeEnd('neigh');
     let s = Boid.params.agility.value;
+    console.time('vect');
     Boid.BoidMap.forEach((val, key, t) => {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         let v0 = (_a = key.alignWithNeigbors()) === null || _a === void 0 ? void 0 : _a.normalized;
@@ -79,13 +83,20 @@ function draw() {
             + cu * s * ((_l = v3 === null || v3 === void 0 ? void 0 : v3.y) !== null && _l !== void 0 ? _l : 0));
         t.set(key, new Vector(dest));
     });
+    console.timeEnd('vect');
+    out = [];
+    console.time('update');
     Boid.BoidMap.forEach((v, k) => {
         k.direction = v;
         k.incrementPositon();
         if (context)
             drawBoid(context, k);
+        out.push((2 * k.location.x / Boid.canvas.width) - 1, (2 * k.location.y / Boid.canvas.height) - 1);
     });
+    console.timeEnd('update');
+    // console.log(out)
     pausable = true;
+    console.timeEnd('overall');
     currFrame = window.requestAnimationFrame(draw);
 }
 function drawStatic(boidsSet) {
@@ -125,7 +136,7 @@ function drawBoid(context, boid) {
         context.lineTo(length, 0);
         context.lineTo(-length, breadth);
     }
-    else if (selectedShape == SHAPE.CIRCLE) {
+    else if (selectedShape == SHAPE.ELLIPSE) {
         context.ellipse(0, 0, length, breadth, 0, 0, 2 * Math.PI);
     }
     else {
@@ -166,7 +177,7 @@ var SHAPE;
 (function (SHAPE) {
     SHAPE[SHAPE["TRIANGLE"] = 0] = "TRIANGLE";
     SHAPE[SHAPE["ARROW"] = 1] = "ARROW";
-    SHAPE[SHAPE["CIRCLE"] = 2] = "CIRCLE";
+    SHAPE[SHAPE["ELLIPSE"] = 2] = "ELLIPSE";
     SHAPE[SHAPE["SQUARE"] = 3] = "SQUARE";
 })(SHAPE || (SHAPE = {}));
 let selectedShape = SHAPE.TRIANGLE;

@@ -50,15 +50,18 @@ function start(count: number) {
         currFrame = window.requestAnimationFrame(draw)
     } 
 }
-
-
 function draw() {
+    console.time('overall')
+    
     pausable = false
     context?.clearRect(0, 0, medium?.width || 0, medium?.height || 0)
+    console.time('neigh')
     Boid.BoidMap.forEach( (v, k) => {
         k.findNeighbors()
     })
+    console.timeEnd('neigh')
     let s = Boid.params.agility.value
+    console.time('vect')
     Boid.BoidMap.forEach((val, key, t) => {
         let v0 = key.alignWithNeigbors()?.normalized
         let v1 = key.avoidNeighbors()?.normalized
@@ -91,13 +94,20 @@ function draw() {
 
         t.set(key, new Vector(dest))
     })
+    console.timeEnd('vect')
+    out = [];
+    console.time('update')
     Boid.BoidMap.forEach((v, k) => {
         k.direction = v
         k.incrementPositon()
         if (context)
         drawBoid(context, k)
+        out.push((2 * k.location.x / Boid.canvas.width) - 1, (2 * k.location.y / Boid.canvas.height) - 1);
     })
+    console.timeEnd('update')
+    // console.log(out)
     pausable = true
+    console.timeEnd('overall')
     currFrame = window.requestAnimationFrame(draw)
 }
 
