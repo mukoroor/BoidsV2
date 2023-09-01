@@ -84,14 +84,12 @@ function draw() {
         t.set(key, new Vector(dest));
     });
     console.timeEnd('vect');
-    out = [];
     console.time('update');
     Boid.BoidMap.forEach((v, k) => {
         k.direction = v;
         k.incrementPositon();
         if (context)
             drawBoid(context, k);
-        out.push((2 * k.location.x / Boid.canvas.width) - 1, (2 * k.location.y / Boid.canvas.height) - 1);
     });
     console.timeEnd('update');
     // console.log(out)
