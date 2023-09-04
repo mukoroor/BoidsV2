@@ -55,9 +55,24 @@ class Canvas {
         }
         return null;
     }
-    distributeBoids(divisions) {
-        Boid.BoidMap.forEach(b => {
+    distributeBoids() {
+        console.time('distribution');
+        const enclosureLen = Boid.params.range.value * Math.cos(Math.PI / 4);
+        const x = Math.ceil(this._width / enclosureLen) || 1;
+        const y = Math.ceil(this._height / enclosureLen) || 1;
+        for (let i = 0; i < x; i++) {
+            for (let j = 0; j < y; j++) {
+                const key = `${i}${j}`;
+                this._canvasMap.set(key, []);
+            }
+        }
+        Boid.BoidMap.forEach((v, k) => {
+            var _a;
+            const xDiv = Math.floor(k.location.x / enclosureLen);
+            const yDiv = Math.floor(k.location.y / enclosureLen);
+            (_a = this._canvasMap.get(`${xDiv}${yDiv}`)) === null || _a === void 0 ? void 0 : _a.push(k);
         });
+        console.timeEnd('distribution');
     }
     get canvasArray() {
         return this._canvasArray;
