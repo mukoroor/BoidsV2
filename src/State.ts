@@ -5,8 +5,8 @@ import Canvas from "./Canvas.js"
 
 function updateCursor(e : MouseEvent) {
     const mouseLocation = new Point(e.x - medium.offsetLeft, e.y - medium.offsetTop)
-    cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth 
-    cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight
+    cursorPos.location.x = medium.width * mouseLocation.x / medium.offsetWidth - Canvas.offCanvasBuffer
+    cursorPos.location.y = medium.height * mouseLocation.y / medium.offsetHeight - Canvas.offCanvasBuffer
 }
 
 function drawPreview() {
