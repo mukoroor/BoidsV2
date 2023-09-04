@@ -76,7 +76,7 @@ export default class Boid {
             let curr = queue.shift()
             if (!curr || curr.dist >= Boid.params.range.value) continue
             if (!Point.within([curr.x, curr.y], Boid.canvas.width, Boid.canvas.height)) continue
-            let check = Boid.canvas.canvasMap[curr.x][curr.y]
+            let check = Boid.canvas.canvasArray[curr.x][curr.y]
             if (check) {
                 out.push(check)
             }

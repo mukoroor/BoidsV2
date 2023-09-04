@@ -3,13 +3,14 @@ class Canvas {
     constructor(_width, _height) {
         this._width = _width;
         this._height = _height;
-        this._canvasMap = Array.from({ length: this.width }, () => Array(this.height).fill(null));
+        this._canvasArray = Array.from({ length: this.width }, () => Array(this.height).fill(null));
+        this._canvasMap = new Map();
     }
     setBoidLocation(b) {
-        this._canvasMap[Math.floor(b.location.x)][Math.floor(b.location.y)] = b;
+        this._canvasArray[Math.floor(b.location.x)][Math.floor(b.location.y)] = b;
     }
     clearBoidLocation(b) {
-        this._canvasMap[Math.floor(b.location.x)][Math.floor(b.location.y)] = null;
+        this._canvasArray[Math.floor(b.location.x)][Math.floor(b.location.y)] = null;
     }
     searchLocationBFS(p, maxDistance) {
         const queue = [{ x: p.x, y: p.y, type: 'o', dist: -1, dir: [0, 0] }];
@@ -20,7 +21,7 @@ class Canvas {
                 continue;
             if (!Point.within([curr.x, curr.y], this._width, this._height))
                 continue;
-            let check = this._canvasMap[curr.x][curr.y];
+            let check = this._canvasArray[curr.x][curr.y];
             if (check) {
                 return check;
             }
@@ -53,8 +54,8 @@ class Canvas {
         }
         return null;
     }
-    get canvasMap() {
-        return this._canvasMap;
+    get canvasArray() {
+        return this._canvasArray;
     }
     get width() {
         return this._width;

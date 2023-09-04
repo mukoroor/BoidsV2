@@ -2,21 +2,23 @@ import Boid from "./Boid.js"
 import Point from "./Point.js";
 
 export default class Canvas {
-    private _canvasMap: (Boid | null)[][]
+    private _canvasArray: (Boid | null)[][]
+    private _canvasMap: Map<string, Boid[]>
     static offCanvasBuffer = 100
 
     constructor(private _width: number, private _height: number) {
-        this._canvasMap = Array.from({ length: this.width }, () =>
+        this._canvasArray = Array.from({ length: this.width }, () =>
             Array(this.height).fill(null)
         )
+        this._canvasMap = new Map();
     }
 
     setBoidLocation(b: Boid): void {
-        this._canvasMap[Math.floor(b.location.x)][Math.floor(b.location.y)] = b;
+        this._canvasArray[Math.floor(b.location.x)][Math.floor(b.location.y)] = b;
     }
 
     clearBoidLocation(b: Boid): void {
-        this._canvasMap[Math.floor(b.location.x)][Math.floor(b.location.y)] = null;
+        this._canvasArray[Math.floor(b.location.x)][Math.floor(b.location.y)] = null;
     }
 
     searchLocationBFS(p: Point, maxDistance: number): Boid | null {
@@ -28,7 +30,7 @@ export default class Canvas {
             let curr = queue.shift()
             if (!curr || curr.dist >= maxDistance) continue
             if (!Point.within([curr.x, curr.y], this._width, this._height)) continue
-            let check = this._canvasMap[curr.x][curr.y]
+            let check = this._canvasArray[curr.x][curr.y]
             if (check) {
                 return check
             }
@@ -59,8 +61,8 @@ export default class Canvas {
         return null
     }
 
-    get canvasMap(): (Boid | null)[][] {
-        return this._canvasMap;
+    get canvasArray(): (Boid | null)[][] {
+        return this._canvasArray;
     }
 
     get width(): number {
