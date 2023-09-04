@@ -65,11 +65,26 @@ export default class Canvas {
         return null
     }
 
-    distributeBoids(divisions: number): void {
+    distributeBoids(): void {
+        console.time('distribution')
+        const enclosureLen = Boid.params.range.value * Math.cos(Math.PI / 4);
 
-        Boid.BoidMap.forEach(b => {
+        const x = Math.ceil(this._width / enclosureLen) || 1
+        const y = Math.ceil(this._height / enclosureLen) || 1
 
-        });
+        for (let i = 0; i < x; i++) {
+            for (let j = 0; j < y; j++) {
+                const key = `${i}${j}`
+                this._canvasMap.set(key, []);
+            }
+        }
+        Boid.BoidMap.forEach((v, k) => {
+            const xDiv = Math.floor(k.location.x / enclosureLen);
+            const yDiv = Math.floor(k.location.y / enclosureLen);
+            
+            this._canvasMap.get(`${xDiv}${yDiv}`)?.push(k);
+        })
+        console.timeEnd('distribution')
     }
 
     get canvasArray(): (Boid | null)[][] {
