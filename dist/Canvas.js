@@ -1,3 +1,4 @@
+import Boid from "./Boid.js";
 import Point from "./Point.js";
 class Canvas {
     constructor(_width, _height) {
@@ -53,6 +54,10 @@ class Canvas {
             }
         }
         return null;
+    }
+    distributeBoids(divisions) {
+        Boid.BoidMap.forEach(b => {
+        });
     }
     get canvasArray() {
         return this._canvasArray;

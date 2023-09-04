@@ -61,6 +61,13 @@ export default class Canvas {
         return null
     }
 
+    distributeBoids(divisions: number): void {
+        
+        Boid.BoidMap.forEach(b => {
+
+        });
+    }
+
     get canvasArray(): (Boid | null)[][] {
         return this._canvasArray;
     }
