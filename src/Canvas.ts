@@ -4,9 +4,13 @@ import Point from "./Point.js";
 export default class Canvas {
     private _canvasArray: (Boid | null)[][]
     private _canvasMap: Map<string, Boid[]>
+    private _width: number
+    private _height: number
     static offCanvasBuffer = 100
 
-    constructor(private _width: number, private _height: number) {
+    constructor(_width: number,_height: number) {
+        this._width = _width + 2 * Canvas.offCanvasBuffer
+        this._height = _height + 2 * Canvas.offCanvasBuffer
         this._canvasArray = Array.from({ length: this.width }, () =>
             Array(this.height).fill(null)
         )
@@ -62,7 +66,7 @@ export default class Canvas {
     }
 
     distributeBoids(divisions: number): void {
-        
+
         Boid.BoidMap.forEach(b => {
 
         });

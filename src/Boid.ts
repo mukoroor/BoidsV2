@@ -42,15 +42,12 @@ export default class Boid {
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.clearBoidLocation(this)
         }
-        const offset = Canvas.offCanvasBuffer
-        canvasHeight += offset
-        canvasWidth += offset
-        this._location.x = ((this._location.x + speed * normal.x + offset) % (canvasWidth) + (canvasWidth)) % (canvasWidth) - offset;
-        this._location.y = ((this._location.y + speed * normal.y + offset) % (canvasHeight) + (canvasHeight)) % (canvasHeight) - offset;
+        this._location.x = (this._location.x + speed * normal.x) % canvasWidth;
+        this._location.y = (this._location.y + speed * normal.y) % canvasHeight;
 
-        if (Point.within(this._location, canvasWidth, canvasHeight)) {
-            Boid.canvas.setBoidLocation(this)
-        }
+        // if (Point.within(this._location, canvasWidth, canvasHeight)) {
+        //     Boid.canvas.setBoidLocation(this)
+        // }
     }
 
     findNeighbors(): void {

@@ -2,8 +2,8 @@ import Boid from "./Boid.js";
 import Point from "./Point.js";
 class Canvas {
     constructor(_width, _height) {
-        this._width = _width;
-        this._height = _height;
+        this._width = _width + 2 * Canvas.offCanvasBuffer;
+        this._height = _height + 2 * Canvas.offCanvasBuffer;
         this._canvasArray = Array.from({ length: this.width }, () => Array(this.height).fill(null));
         this._canvasMap = new Map();
     }

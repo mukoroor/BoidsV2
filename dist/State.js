@@ -120,7 +120,7 @@ function drawBoid(context, boid) {
     length /= 2;
     breadth /= 2;
     context.save();
-    context.translate(boid.location.x, boid.location.y);
+    context.translate(boid.location.x - Canvas.offCanvasBuffer, boid.location.y - Canvas.offCanvasBuffer);
     context.rotate(boid.direction.angle);
     context.beginPath();
     if (selectedShape == SHAPE.TRIANGLE) {

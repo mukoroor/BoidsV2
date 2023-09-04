@@ -1,6 +1,5 @@
 import Vector from "./Vector.js";
 import Point from "./Point.js";
-import Canvas from "./Canvas.js";
 import Slider from "./Slider.js";
 class Boid {
     constructor(_location, _direction, _dimensions, color) {
@@ -25,14 +24,11 @@ class Boid {
         if (Point.within(this._location, canvasWidth, canvasHeight)) {
             Boid.canvas.clearBoidLocation(this);
         }
-        const offset = Canvas.offCanvasBuffer;
-        canvasHeight += offset;
-        canvasWidth += offset;
-        this._location.x = ((this._location.x + speed * normal.x + offset) % (canvasWidth) + (canvasWidth)) % (canvasWidth) - offset;
-        this._location.y = ((this._location.y + speed * normal.y + offset) % (canvasHeight) + (canvasHeight)) % (canvasHeight) - offset;
-        if (Point.within(this._location, canvasWidth, canvasHeight)) {
-            Boid.canvas.setBoidLocation(this);
-        }
+        this._location.x = (this._location.x + speed * normal.x) % canvasWidth;
+        this._location.y = (this._location.y + speed * normal.y) % canvasHeight;
+        // if (Point.within(this._location, canvasWidth, canvasHeight)) {
+        //     Boid.canvas.setBoidLocation(this)
+        // }
     }
     findNeighbors() {
         const found = new Map();
