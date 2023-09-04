@@ -11,7 +11,7 @@ export default class Boid {
     static BoidMap: Map<Boid, Vector> = new Map();
     static params: {[key: string]: Slider} = {
         speed: new Slider(0 , 20, {step: 0.5, initialValue: 5, name: "speed", unit: "unit(s) / frame"}),
-        range: new Slider(0, 1024, {step: 1, initialValue: 256, name: "range", unit: "unit(s)"}),
+        range: new Slider(0, 6400, {step: 1, initialValue: 256, name: "range", unit: "unit(s)"}),
         cone: new Slider(0, 180, {step: 1, initialValue: 20, name: "visual cone", unit: "°"}),
         agility: new Slider(0, 2, {step: 0.01, initialValue: 0.1, name: "agility / acceleration"}),
         align: new Slider(0, 5, {step: 0.05, initialValue: 1, name: "align  power"}),
@@ -35,19 +35,14 @@ export default class Boid {
 
     
     incrementPositon(): void {
+        // console.time("o")
         const normal = this._direction.normalized;
         const speed = Boid.params.speed.value;
-        let canvasWidth = Boid.canvas.width;
-        let canvasHeight = Boid.canvas.height;
-        if (Point.within(this._location, canvasWidth, canvasHeight)) {
-            Boid.canvas.clearBoidLocation(this)
-        }
-        this._location.x = (this._location.x + speed * normal.x) % canvasWidth;
-        this._location.y = (this._location.y + speed * normal.y) % canvasHeight;
-
-        // if (Point.within(this._location, canvasWidth, canvasHeight)) {
-        //     Boid.canvas.setBoidLocation(this)
-        // }
+        Boid.canvas.clearBoidLocation(this)
+        this._location.x = ((this._location.x + speed * normal.x) % Boid.canvas.width + Boid.canvas.width) % Boid.canvas.width;
+        this._location.y = ((this._location.y + speed * normal.y) % Boid.canvas.height + Boid.canvas.height) % Boid.canvas.height;
+        Boid.canvas.setBoidLocation(this)
+        // console.timeEnd("o")
     }
 
     findNeighbors(): void {

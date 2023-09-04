@@ -36,11 +36,12 @@ function start(count) {
     const { length, breadth } = data.getDimesions();
     const color = data.getColor();
     for (let i = 0; i < count; i++) {
-        const loc = new Point(Math.random() * ((medium === null || medium === void 0 ? void 0 : medium.width) || 0), Math.random() * ((medium === null || medium === void 0 ? void 0 : medium.height) || 0));
+        const loc = new Point(Math.random() * Boid.canvas.width, Math.random() * Boid.canvas.height);
         const d = new Point(Math.random() * 2 - 1, Math.random() * 2 - 1);
         const direc = new Vector(d);
         new Boid(loc, direc, { length, breadth }, color).addToCanvas();
     }
+    Boid.canvas.distributeBoids();
     pausePlay = boidClick();
     if (context = medium.getContext("2d")) {
         window.cancelAnimationFrame(currFrame);
@@ -48,16 +49,16 @@ function start(count) {
     }
 }
 function draw() {
-    console.time('overall');
+    // console.time('overall')
     pausable = false;
     context === null || context === void 0 ? void 0 : context.clearRect(0, 0, (medium === null || medium === void 0 ? void 0 : medium.width) || 0, (medium === null || medium === void 0 ? void 0 : medium.height) || 0);
-    console.time('neigh');
+    // console.time('neigh')
     Boid.BoidMap.forEach((v, k) => {
         k.findNeighbors();
     });
-    console.timeEnd('neigh');
+    // console.timeEnd('neigh')
     let s = Boid.params.agility.value;
-    console.time('vect');
+    // console.time('vect')
     Boid.BoidMap.forEach((val, key, t) => {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         let v0 = (_a = key.alignWithNeigbors()) === null || _a === void 0 ? void 0 : _a.normalized;
@@ -83,18 +84,18 @@ function draw() {
             + cu * s * ((_l = v3 === null || v3 === void 0 ? void 0 : v3.y) !== null && _l !== void 0 ? _l : 0));
         t.set(key, new Vector(dest));
     });
-    console.timeEnd('vect');
-    console.time('update');
+    // console.timeEnd('vect')
+    // console.time('update')
     Boid.BoidMap.forEach((v, k) => {
         k.direction = v;
         k.incrementPositon();
         if (context)
             drawBoid(context, k);
     });
-    console.timeEnd('update');
+    // console.timeEnd('update')
     // console.log(out)
     pausable = true;
-    console.timeEnd('overall');
+    // console.timeEnd('overall')
     currFrame = window.requestAnimationFrame(draw);
 }
 function drawStatic(boidsSet) {

@@ -3,7 +3,7 @@ import Point from "./Point.js";
 
 export default class Canvas {
     private _canvasArray: (Boid | null)[][]
-    private _canvasMap: Map<string, Boid[]>
+    private _canvasMap: Map<string, Set<Boid>>
     private _width: number
     private _height: number
     static offCanvasBuffer = 100
@@ -14,14 +14,27 @@ export default class Canvas {
         this._canvasArray = Array.from({ length: this.width }, () =>
             Array(this.height).fill(null)
         )
+        // console.log(this)
         this._canvasMap = new Map();
     }
 
     setBoidLocation(b: Boid): void {
+        const enclosureLen = Boid.params.range.value * Math.cos(Math.PI / 4);
+        const xDiv = Math.floor(b.location.x / enclosureLen);
+        const yDiv = Math.floor(b.location.y / enclosureLen);
+        // console.log(`${xDiv}${yDiv}`)    
+        this._canvasMap.get(`${xDiv}${yDiv}`)?.add(b);
+
         this._canvasArray[Math.floor(b.location.x)][Math.floor(b.location.y)] = b;
     }
 
     clearBoidLocation(b: Boid): void {
+        const enclosureLen = Boid.params.range.value * Math.cos(Math.PI / 4);
+        const xDiv = Math.floor(b.location.x / enclosureLen);
+        const yDiv = Math.floor(b.location.y / enclosureLen);
+        // console.log(`${xDiv}${yDiv}`)    
+        this._canvasMap.get(`${xDiv}${yDiv}`)?.delete(b);
+
         this._canvasArray[Math.floor(b.location.x)][Math.floor(b.location.y)] = null;
     }
 
@@ -68,6 +81,7 @@ export default class Canvas {
     distributeBoids(): void {
         console.time('distribution')
         const enclosureLen = Boid.params.range.value * Math.cos(Math.PI / 4);
+        // console.log(enclosureLen)
 
         const x = Math.ceil(this._width / enclosureLen) || 1
         const y = Math.ceil(this._height / enclosureLen) || 1
@@ -75,16 +89,17 @@ export default class Canvas {
         for (let i = 0; i < x; i++) {
             for (let j = 0; j < y; j++) {
                 const key = `${i}${j}`
-                this._canvasMap.set(key, []);
+                this._canvasMap.set(key, new Set());
             }
         }
         Boid.BoidMap.forEach((v, k) => {
             const xDiv = Math.floor(k.location.x / enclosureLen);
             const yDiv = Math.floor(k.location.y / enclosureLen);
             
-            this._canvasMap.get(`${xDiv}${yDiv}`)?.push(k);
+            this._canvasMap.get(`${xDiv}${yDiv}`)?.add(k);
         })
         console.timeEnd('distribution')
+        // console.log(this._canvasMap);
     }
 
     get canvasArray(): (Boid | null)[][] {

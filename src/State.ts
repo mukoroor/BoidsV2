@@ -38,11 +38,12 @@ function start(count: number) {
     const {length, breadth} = data.getDimesions()
     const color = data.getColor()
     for(let i = 0; i < count; i++) {
-        const loc = new Point(Math.random() * ( medium?.width || 0),Math.random() * (medium?.height || 0))
+        const loc = new Point(Math.random() * Boid.canvas.width, Math.random() * Boid.canvas.height)
         const d = new Point(Math.random() * 2 - 1, Math.random() * 2 - 1)
         const direc = new Vector(d)
         new Boid(loc, direc, {length, breadth}, color).addToCanvas()
     }
+    Boid.canvas.distributeBoids()
 
     pausePlay = boidClick()
     if (context = medium.getContext("2d")) {
@@ -51,17 +52,17 @@ function start(count: number) {
     } 
 }
 function draw() {
-    console.time('overall')
+    // console.time('overall')
     
     pausable = false
     context?.clearRect(0, 0, medium?.width || 0, medium?.height || 0)
-    console.time('neigh')
+    // console.time('neigh')
     Boid.BoidMap.forEach( (v, k) => {
         k.findNeighbors()
     })
-    console.timeEnd('neigh')
+    // console.timeEnd('neigh')
     let s = Boid.params.agility.value
-    console.time('vect')
+    // console.time('vect')
     Boid.BoidMap.forEach((val, key, t) => {
         let v0 = key.alignWithNeigbors()?.normalized
         let v1 = key.avoidNeighbors()?.normalized
@@ -94,18 +95,18 @@ function draw() {
 
         t.set(key, new Vector(dest))
     })
-    console.timeEnd('vect')
-    console.time('update')
+    // console.timeEnd('vect')
+    // console.time('update')
     Boid.BoidMap.forEach((v, k) => {
         k.direction = v
         k.incrementPositon()
         if (context)
         drawBoid(context, k)
     })
-    console.timeEnd('update')
+    // console.timeEnd('update')
     // console.log(out)
     pausable = true
-    console.timeEnd('overall')
+    // console.timeEnd('overall')
     currFrame = window.requestAnimationFrame(draw)
 }
 
